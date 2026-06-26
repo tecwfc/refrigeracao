@@ -3,346 +3,607 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Clima App">
-    <meta name="theme-color" content="#0284c7">
-    
+    <meta name="theme-color" content="#0369a1">
     <title>Manutenção de Ar Condicionado</title>
-    
     <link rel="manifest" id="pwa-manifest">
 
     <style>
         :root {
-            --primary: #0284c7; 
-            --primary-hover: #0369a1;
-            --success: #10b981; 
-            --danger: #ef4444;  
-            --warning: #f59e0b; 
-            --dark: #0f172a;
-            --bg-app: #f8fafc;
-            --bg-input: #f1f5f9;
-            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --primary:        #0369a1;
+            --primary-light:  #0ea5e9;
+            --primary-hover:  #075985;
+            --success:        #059669;
+            --danger:         #dc2626;
+            --warning:        #d97706;
+            --dark:           #0f172a;
+            --slate:          #475569;
+            --muted:          #94a3b8;
+            --border:         #e2e8f0;
+            --bg-app:         #f0f4f8;
+            --bg-card:        #ffffff;
+            --bg-input:       #f1f5f9;
+            --radius-lg:      20px;
+            --radius-md:      14px;
+            --radius-sm:      8px;
+            --shadow:         0 4px 16px rgba(0,0,0,0.07);
+            --shadow-hover:   0 8px 24px rgba(0,0,0,0.12);
+            --transition:     all 0.2s ease;
         }
 
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-        }
-        
-        html, body { 
-            background-color: var(--bg-app); 
-            color: var(--dark); 
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--bg-app);
+            color: var(--dark);
             max-width: 100vw;
             overflow-x: hidden;
-        }
-        body {
-            padding-bottom: 90px; 
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* LAYOUT RESPONSIVO */
-        @media (min-width: 1024px) {
-            body { padding: 30px 40px; }
-            .desktop-layout { display: grid; grid-template-columns: 260px 1fr; gap: 30px; max-width: 1400px; margin: 0 auto; }
-            .bottom-nav { display: none !important; } 
-            .pc-sidebar { display: block !important; } 
-        }
+        body { padding-bottom: 80px; }
 
-        @media (max-width: 1023px) {
-            .pc-sidebar { display: none !important; }
-            .desktop-layout { display: block; padding: 12px; width: 100%; }
+        /* ─── TOAST NOTIFICATIONS ─── */
+        #toastContainer {
+            position: fixed; top: 20px; right: 20px; z-index: 99999;
+            display: flex; flex-direction: column; gap: 10px; pointer-events: none;
         }
+        .toast {
+            background: var(--dark); color: white; padding: 14px 20px;
+            border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600;
+            box-shadow: var(--shadow-hover); pointer-events: auto;
+            display: flex; align-items: center; gap: 10px; min-width: 260px;
+            animation: slideIn 0.3s ease; max-width: 340px;
+        }
+        .toast.success { background: var(--success); }
+        .toast.error   { background: var(--danger); }
+        .toast.warning { background: var(--warning); }
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+        .toast.hide { animation: slideOut 0.3s ease forwards; }
 
-        /* LOGIN */
-        #loginOverlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #0f172a; display: flex; align-items: center; justify-content: center; 
-            z-index: 10000; padding: 20px; 
+        /* ─── LOADER GLOBAL ─── */
+        #globalLoader {
+            position: fixed; inset: 0; background: rgba(15,23,42,0.45);
+            display: none; align-items: center; justify-content: center; z-index: 9999;
+            backdrop-filter: blur(2px);
         }
-        .login-card { 
-            background: white; padding: 40px 24px; border-radius: 32px; 
-            width: 100%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        #globalLoader.show { display: flex; }
+        .loader-box {
+            background: white; padding: 28px 36px; border-radius: var(--radius-lg);
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+        }
+        .spinner {
+            width: 36px; height: 36px; border: 3px solid var(--border);
+            border-top-color: var(--primary); border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-box p { font-size: 0.875rem; color: var(--slate); font-weight: 600; }
+
+        /* ─── LOGIN ─── */
+        #loginOverlay {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;
+        }
+        .login-card {
+            background: white; padding: 44px 32px; border-radius: 28px;
+            width: 100%; max-width: 400px; box-shadow: 0 30px 60px rgba(0,0,0,0.4);
         }
         .login-logo {
-            width: 80px; 
-            height: 80px; 
-            margin: 0 auto 20px;
-            border-radius: 50%; 
-            overflow: hidden;
-            border: 4px solid #e0f2fe;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 72px; height: 72px; margin: 0 auto 20px;
+            border-radius: 50%; overflow: hidden; border: 3px solid #e0f2fe;
+            background: white; display: flex; align-items: center; justify-content: center;
         }
-        .login-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 8px;
+        .login-logo img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+        .login-logo-fallback {
+            font-size: 2rem; width: 72px; height: 72px; margin: 0 auto 20px;
+            border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex; align-items: center; justify-content: center;
         }
-        .login-card h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; text-transform: uppercase; margin-bottom: 4px; }
-        .login-card p { color: #94a3b8; font-size: 0.85rem; margin-bottom: 30px; }
+        .login-card h2 { font-size: 1.15rem; font-weight: 800; color: #0f172a; text-align: center; letter-spacing: -0.3px; }
+        .login-card .subtitle { text-align: center; color: var(--muted); font-size: 0.82rem; margin: 4px 0 28px; }
 
-        /* INPUTS E FORMULÁRIOS */
-        .form-group { margin-bottom: 18px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        input, select { 
-            width: 100%; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 16px; 
-            background-color: var(--bg-input); font-size: 0.95rem; color: var(--dark); outline: none; font-weight: 500;
+        /* ─── FORM ELEMENTS ─── */
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block; margin-bottom: 6px; font-weight: 700;
+            font-size: 0.72rem; color: var(--slate); text-transform: uppercase; letter-spacing: 0.6px;
         }
-        input:focus, select:focus { border-color: var(--primary); background-color: white; }
-        
-        .btn-target { 
-            width: 100%; padding: 16px; background-color: var(--primary); color: white; 
-            border: none; border-radius: 16px; font-weight: 700; font-size: 1rem; 
-            text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s;
+        input, select {
+            width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
+            border-radius: var(--radius-md); background: var(--bg-input);
+            font-size: 0.93rem; color: var(--dark); outline: none; font-weight: 500;
+            transition: var(--transition); font-family: inherit;
         }
-        .btn-target:hover { background-color: var(--primary-hover); }
+        input:focus, select:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(3,105,161,0.1); }
+        input::placeholder { color: var(--muted); font-weight: 400; }
 
+        .password-wrapper { position: relative; }
+        .password-wrapper input { padding-right: 46px; }
+        .toggle-password {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; font-size: 1.1rem;
+            color: var(--muted); padding: 4px; line-height: 1;
+        }
+        .toggle-password:hover { color: var(--dark); }
+
+        /* ─── BUTTONS ─── */
+        .btn { 
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 13px 20px; border-radius: var(--radius-md); border: none;
+            font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: var(--transition);
+            font-family: inherit; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(3,105,161,0.3); }
+        .btn-primary:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+        .btn-dark { background: var(--dark); color: white; }
+        .btn-dark:hover { background: #1e293b; }
+        .btn-danger { background: #fef2f2; color: var(--danger); }
+        .btn-danger:hover { background: #fee2e2; }
+        .btn-ghost { background: var(--bg-input); color: var(--slate); }
+        .btn-ghost:hover { background: var(--border); color: var(--dark); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #047857; }
+        .btn-sm { padding: 7px 12px; font-size: 0.76rem; border-radius: var(--radius-sm); }
+        .btn-icon { width: 36px; height: 36px; padding: 0; border-radius: var(--radius-sm); font-size: 0.9rem; }
+
+        /* ─── APP LAYOUT ─── */
         #sistemaConteudo { display: none; }
-        
-        /* TOPO DO APP */
-        .app-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
-        .app-bar .welcome h1 { font-size: 1.2rem; font-weight: 700; color: #0f172a; }
-        .app-bar .welcome p { font-size: 0.8rem; color: var(--primary); font-weight: 600; }
 
+        @media (min-width: 1024px) {
+            body { padding: 28px 36px 28px; }
+            .desktop-layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; max-width: 1440px; margin: 0 auto; }
+            .bottom-nav { display: none !important; }
+            .pc-sidebar { display: flex !important; }
+        }
+        @media (max-width: 1023px) {
+            .pc-sidebar { display: none !important; }
+            .desktop-layout { display: block; padding: 12px; }
+        }
+
+        /* ─── SIDEBAR ─── */
+        .pc-sidebar {
+            background: var(--bg-card); padding: 24px 16px;
+            border-radius: var(--radius-lg); box-shadow: var(--shadow);
+            border: 1px solid var(--border); height: fit-content;
+            position: sticky; top: 28px; flex-direction: column; display: none;
+        }
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 10px;
+            padding: 0 6px 20px; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+        }
+        .sidebar-logo .logo-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .sidebar-logo span { font-weight: 800; font-size: 0.9rem; color: var(--dark); line-height: 1.2; }
+        .sidebar-logo small { font-size: 0.7rem; color: var(--muted); display: block; }
+        .sidebar-section-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; padding: 0 10px; margin-bottom: 6px; }
+        .pc-nav-btn {
+            width: 100%; text-align: left; padding: 12px 14px;
+            background: none; border: none; color: var(--slate); font-weight: 600;
+            font-size: 0.88rem; border-radius: var(--radius-md); cursor: pointer;
+            display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
+            transition: var(--transition); font-family: inherit;
+        }
+        .pc-nav-btn .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+        .pc-nav-btn.active { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; box-shadow: 0 4px 12px rgba(3,105,161,0.3); }
+        .pc-nav-btn:hover:not(.active) { background: var(--bg-input); color: var(--dark); }
+        .pc-logout { color: var(--danger) !important; margin-top: auto; }
+        .pc-logout:hover { background: #fef2f2 !important; }
+        .sidebar-spacer { flex: 1; }
+
+        /* ─── APP BAR ─── */
+        .app-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding: 14px 18px;
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            box-shadow: var(--shadow); border: 1px solid var(--border);
+        }
+        .app-bar .welcome-name { font-size: 1rem; font-weight: 800; color: var(--dark); }
+        .app-bar .welcome-sub { font-size: 0.75rem; color: var(--primary); font-weight: 600; margin-top: 1px; }
+        .app-bar-right { text-align: right; }
+        .app-bar-date { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+        .app-bar-date strong { color: var(--dark); display: block; font-size: 0.85rem; }
+
+        /* ─── SEARCH BAR ─── */
+        .search-bar-wrapper { position: relative; margin-bottom: 16px; }
+        .search-bar-wrapper input { padding-left: 40px; background: var(--bg-card); border-color: var(--border); }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: var(--muted); pointer-events: none; }
+
+        /* ─── TELAS ─── */
         .tela { display: none; width: 100%; }
         .tela.active { display: block; }
 
-        /* CRONOGRAMA POR MESES */
+        /* ─── METRICS ─── */
+        .metrics-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 10px; margin-bottom: 16px;
+        }
+        @media (min-width: 640px) { .metrics-grid { grid-template-columns: repeat(4, 1fr); } }
+
+        .m-card {
+            background: var(--bg-card); padding: 14px 16px;
+            border-radius: var(--radius-lg); box-shadow: var(--shadow);
+            border: 1px solid var(--border); border-top-width: 3px;
+            transition: var(--transition); cursor: default;
+        }
+        .m-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+        .m-card.m-realizadas { border-top-color: var(--success); }
+        .m-card.m-atrasadas  { border-top-color: var(--danger); }
+        .m-card.m-agendadas  { border-top-color: var(--warning); }
+        .m-card.m-total      { border-top-color: var(--primary); }
+        .m-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .m-value { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+        .m-card.m-realizadas .m-value { color: var(--success); }
+        .m-card.m-atrasadas  .m-value { color: var(--danger); }
+        .m-card.m-agendadas  .m-value { color: var(--warning); }
+        .m-card.m-total      .m-value { color: var(--primary); }
+        .m-trend { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+
+        /* ─── CRONOGRAMA ─── */
         .months-container {
-            background: white; padding: 16px; border-radius: 24px; box-shadow: var(--card-shadow);
-            margin-bottom: 20px; border: 1px solid #e2e8f0; width: 100%;
+            background: var(--bg-card); padding: 18px;
+            border-radius: var(--radius-lg); box-shadow: var(--shadow);
+            border: 1px solid var(--border); margin-bottom: 20px;
         }
-        .months-grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 8px; 
-            margin-top: 12px; 
-            width: 100%;
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .section-title { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--slate); letter-spacing: 0.8px; }
+        .months-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
         }
-        @media (min-width: 768px) { .months-grid { grid-template-columns: repeat(6, 1fr); } }
+        @media (min-width: 640px)  { .months-grid { grid-template-columns: repeat(6, 1fr); } }
         @media (min-width: 1200px) { .months-grid { grid-template-columns: repeat(12, 1fr); } }
-        
+
         .month-bar-card {
-            background: var(--bg-app); padding: 10px 4px; border-radius: 12px; text-align: center;
-            border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between;
+            background: var(--bg-app); padding: 10px 6px;
+            border-radius: var(--radius-md); text-align: center;
+            border: 1.5px solid var(--border); transition: var(--transition);
         }
-        .month-name { font-size: 0.65rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
-        .month-counter { font-size: 1rem; font-weight: 800; color: var(--primary); margin-top: 2px; }
+        .month-bar-card.has-items { border-color: var(--danger); background: #fef2f2; }
+        .month-bar-card.current-month { border-color: var(--primary); background: #e0f2fe; }
+        .month-bar-card.current-month.has-items { border-color: var(--danger); background: #fef2f2; }
+        .month-name { font-size: 0.62rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+        .month-counter { font-size: 1.1rem; font-weight: 900; color: var(--muted); margin-top: 2px; }
+        .month-bar-card.has-items .month-counter { color: var(--danger); }
+        .month-bar-card.current-month:not(.has-items) .month-name { color: var(--primary); }
+        .month-bar-card.current-month:not(.has-items) .month-counter { color: var(--primary); }
 
-        /* METRICAS */
-        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; width: 100%; }
-        @media (min-width: 768px) { .metrics-grid { grid-template-columns: repeat(4, 1fr); } }
-        
-        .m-card { 
-            background: white; padding: 12px 14px; border-radius: 16px; box-shadow: var(--card-shadow);
-            border: 1px solid #e2e8f0; border-left-width: 4px;
-        }
-        .m-card.m-received { border-left-color: var(--success); }
-        .m-card.m-paid { border-left-color: var(--danger); }
-        .m-card.m-fluxo { border-left-color: var(--warning); }
-        .m-card.m-previo { border-left-color: #64748b; }
-        
-        .m-card .m-label { font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; }
-        .m-card .m-value { font-size: 1.1rem; font-weight: 700; }
-        .m-card.m-received .m-value { color: var(--success); }
-        .m-card.m-paid .m-value { color: var(--danger); }
-        .m-card.m-fluxo .m-value { color: var(--warning); }
-
-        /* FILTROS */
-        .filter-wrapper { width: 100%; overflow: hidden; margin-bottom: 16px; }
-        .filter-scroller { 
-            display: flex; 
-            gap: 8px; 
-            overflow-x: auto; 
-            padding-bottom: 6px;
-            -webkit-overflow-scrolling: touch;
+        /* ─── FILTROS ─── */
+        .filter-wrapper { margin-bottom: 14px; }
+        .filter-scroller {
+            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
         }
         .filter-scroller::-webkit-scrollbar { display: none; }
-        .filter-btn { background: white; color: #64748b; padding: 10px 16px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 0.8rem; font-weight: 600; white-space: nowrap; cursor: pointer; }
+        .filter-btn {
+            background: var(--bg-card); color: var(--slate);
+            padding: 9px 16px; border-radius: 30px; border: 1.5px solid var(--border);
+            font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer;
+            transition: var(--transition); font-family: inherit;
+        }
+        .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
         .filter-btn.active { background: var(--dark); color: white; border-color: var(--dark); }
+        .filter-btn.danger.active { background: var(--danger); border-color: var(--danger); }
 
-        /* SELEÇÃO DE INTERFACE PC / MOBILE */
-        .desktop-table-wrapper { display: none; background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: var(--card-shadow); overflow: hidden; }
-        .mobile-cards-wrapper { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+        /* ─── TOOLBAR ─── */
+        .list-toolbar {
+            display: flex; flex-direction: column;
+            margin-bottom: 12px; gap: 8px;
+        }
+        .list-toolbar-top {
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+        }
+        .list-toolbar-top .filter-wrapper { flex: 1; margin-bottom: 0; min-width: 0; }
+        @media (min-width: 640px) {
+            .list-toolbar { flex-direction: row; align-items: center; }
+            .list-toolbar-top { flex: 1; min-width: 0; }
+        }
 
+        /* ─── TABELA DESKTOP ─── */
+        .desktop-table-wrapper {
+            display: none; background: var(--bg-card); border-radius: var(--radius-lg);
+            border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden;
+        }
         @media (min-width: 1024px) {
             .desktop-table-wrapper { display: block; }
             .mobile-cards-wrapper { display: none; }
         }
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        th {
+            background: var(--bg-app); color: var(--muted); font-weight: 700;
+            text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.7px;
+            padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border);
+        }
+        td { padding: 14px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: var(--bg-app); }
+        .td-client strong { display: block; font-weight: 700; color: var(--dark); }
+        .td-client span { font-size: 0.78rem; color: var(--muted); margin-top: 1px; display: block; }
 
-        /* TABELA DESKTOP */
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
-        th, td { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f8fafc; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; }
-        
-        /* CARDS MOBILE */
-        .device-card { background: white; padding: 14px; border-radius: 20px; box-shadow: var(--card-shadow); border: 1px solid #e2e8f0; width: 100%; }
-        .device-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
-        .device-title { font-weight: 700; font-size: 0.95rem; color: var(--dark); word-break: break-word; }
-        .device-sub { font-size: 0.75rem; color: #64748b; word-break: break-word; }
-        
-        .badge-status { padding: 4px 6px; border-radius: 6px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
-        .status-agendada { background: #fffbeb; color: var(--warning); }
-        .status-realizada { background: #ecfdf5; color: var(--success); }
-        .status-atrasada { background: #fef2f2; color: var(--danger); }
-        .status-semdata { background: #f1f5f9; color: #64748b; }
-
-        .device-details { font-size: 0.8rem; color: #475569; padding: 8px 0; border-top: 1px dashed #e2e8f0; border-bottom: 1px dashed #e2e8f0; margin-bottom: 10px; line-height: 1.4; }
+        /* ─── CARDS MOBILE ─── */
+        .mobile-cards-wrapper { display: flex; flex-direction: column; gap: 10px; }
+        .device-card {
+            background: var(--bg-card); padding: 16px;
+            border-radius: var(--radius-lg); box-shadow: var(--shadow);
+            border: 1px solid var(--border); transition: var(--transition);
+        }
+        .device-card:hover { box-shadow: var(--shadow-hover); }
+        .device-card-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 10px; margin-bottom: 12px;
+        }
+        .device-title { font-weight: 700; font-size: 0.95rem; color: var(--dark); }
+        .device-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+        .device-details {
+            font-size: 0.8rem; color: var(--slate); line-height: 1.6;
+            padding: 10px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 12px;
+        }
         .device-actions { display: flex; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
-        .mini-btn { width: auto; padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; border: none; cursor: pointer; }
 
-        /* SIDEBAR (PC) */
-        .pc-sidebar {
-            background: white; padding: 30px 20px; border-radius: 24px; box-shadow: var(--card-shadow);
-            border: 1px solid #e2e8f0; height: fit-content; position: sticky; top: 30px;
+        /* ─── STATUS BADGES ─── */
+        .badge {
+            padding: 4px 10px; border-radius: 30px; font-size: 0.68rem;
+            font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
         }
-        .pc-sidebar h2 { font-size: 0.85rem; text-transform: uppercase; color: #94a3b8; margin-bottom: 20px; letter-spacing: 1px; }
-        .pc-nav-btn {
-            width: 100%; text-align: left; padding: 14px 18px; background: none; border: none;
-            color: #475569; font-weight: 600; font-size: 0.95rem; border-radius: 14px; cursor: pointer;
-            display: flex; align-items: center; gap: 12px; margin-bottom: 8px; transition: all 0.2s;
-        }
-        .pc-nav-btn.active { background: var(--primary); color: white; }
-        .pc-nav-btn:hover:not(.active) { background: var(--bg-input); color: var(--dark); }
+        .badge-agendada  { background: #fffbeb; color: var(--warning); border: 1px solid #fde68a; }
+        .badge-realizada { background: #ecfdf5; color: var(--success); border: 1px solid #a7f3d0; }
+        .badge-atrasada  { background: #fef2f2; color: var(--danger);  border: 1px solid #fecaca; }
+        .badge-semdata   { background: var(--bg-app); color: var(--muted); border: 1px solid var(--border); }
 
-        /* MENUS INFERIORES (MOBILE) */
-        .bottom-nav { 
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 64px; 
-            background: white; border-top: 1px solid #e2e8f0; display: flex; 
-            justify-content: space-around; align-items: center; z-index: 999; box-shadow: 0 -4px 10px rgba(0,0,0,0.03);
+        /* ─── EMPTY STATE ─── */
+        .empty-state {
+            text-align: center; padding: 56px 24px;
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
         }
-        .nav-item { 
-            background: none; border: none; width: 33%; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            color: #94a3b8; font-size: 0.75rem; font-weight: 600; cursor: pointer; gap: 4px;
+        .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+        .empty-title { font-weight: 800; color: var(--dark); margin-bottom: 6px; }
+        .empty-sub { font-size: 0.85rem; color: var(--muted); }
+
+        /* ─── FORMULÁRIO ─── */
+        .form-card {
+            background: var(--bg-card); padding: 24px;
+            border-radius: var(--radius-lg); box-shadow: var(--shadow);
+            max-width: 580px; border: 1px solid var(--border);
         }
+        .form-card h2 { font-size: 1.05rem; font-weight: 800; color: var(--dark); margin-bottom: 20px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+        .form-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .form-actions .btn { flex: 1; }
+
+        /* ─── CONFIG ─── */
+        .config-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
+        @media (min-width: 640px) { .config-grid { grid-template-columns: 1fr 1fr; } }
+        .config-card {
+            background: var(--bg-card); padding: 18px;
+            border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow);
+        }
+        .config-card-title {
+            font-size: 0.78rem; font-weight: 800; text-transform: uppercase;
+            color: var(--primary); margin-bottom: 12px; letter-spacing: 0.5px;
+        }
+        .service-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px dashed var(--border);
+            font-size: 0.85rem; color: var(--slate);
+        }
+        .service-item:last-child { border-bottom: none; }
+        .service-item button {
+            background: none; border: none; color: var(--danger); cursor: pointer;
+            font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; font-weight: 700;
+            transition: var(--transition);
+        }
+        .service-item button:hover { background: #fef2f2; }
+
+        /* ─── BOTTOM NAV ─── */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 64px;
+            background: var(--bg-card); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 999; box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+        }
+        .nav-item {
+            background: none; border: none; flex: 1; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--muted); font-size: 0.7rem; font-weight: 700; cursor: pointer;
+            gap: 4px; transition: var(--transition); font-family: inherit; text-transform: uppercase;
+        }
+        .nav-item .nav-icon { font-size: 1.2rem; }
         .nav-item.active { color: var(--primary); }
+        .nav-item.active .nav-icon { transform: scale(1.1); }
 
-        /* BOTÃO DE INSTALAÇÃO FLUTUANTE */
+        /* ─── PWA INSTALL ─── */
         #pwaInstallBtn {
-            display: none; position: fixed; bottom: 80px; right: 20px; z-index: 9999;
+            display: none; position: fixed; bottom: 80px; right: 16px; z-index: 9999;
             background: var(--dark); color: white; border: none; padding: 12px 18px;
-            border-radius: 30px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            cursor: pointer; align-items: center; gap: 8px;
+            border-radius: 30px; font-weight: 700; font-size: 0.82rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2); cursor: pointer;
+            align-items: center; gap: 8px; font-family: inherit;
         }
+        #pwaInstallBtn:hover { background: #1e293b; }
 
-        /* CONFIGURAÇÃO DE IMPRESSÃO A4 */
+        /* ─── PRINT ─── */
         .print-header { display: none; }
         @media print {
             @page { size: A4 portrait; margin: 15mm 12mm; }
             body { background: white; color: black; padding: 0 !important; font-size: 9pt; }
-            #loginOverlay, .bottom-nav, .pc-sidebar, .filter-wrapper, .device-actions, .app-bar, .months-container, .metrics-grid, .mobile-cards-wrapper, form, button, #pwaInstallBtn { display: none !important; }
+            #loginOverlay, .bottom-nav, .pc-sidebar, .filter-wrapper, .device-actions,
+            .app-bar, .months-container, .metrics-grid, .mobile-cards-wrapper,
+            form, button, #pwaInstallBtn, .list-toolbar, .search-bar-wrapper, #toastContainer, #globalLoader { display: none !important; }
             #sistemaConteudo, #telaDashboard, .desktop-table-wrapper { display: block !important; padding: 0 !important; border: none !important; box-shadow: none !important; }
-            .print-header { display: block !important; margin-bottom: 25px; border-bottom: 2px solid #0f172a; padding-bottom: 10px; }
-            table { width: 100% !important; border-collapse: collapse !important; }
-            th, td { padding: 8px !important; border-bottom: 1px solid #cbd5e1 !important; }
-            th { background-color: #f1f5f9 !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-header { display: block !important; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #0f172a; }
+            table { width: 100% !important; border-collapse: collapse !important; font-size: 8pt; }
+            th, td { padding: 8px !important; border: 1px solid #cbd5e1 !important; }
+            th { background: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             td:last-child, th:last-child { display: none !important; }
         }
+
+        /* ─── ANIMAÇÕES ─── */
+        .fade-in { animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<button id="pwaInstallBtn" onclick="triggerPwaInstall()">📲 Instalar App</button>
+<!-- TOAST CONTAINER -->
+<div id="toastContainer"></div>
 
-<div id="loginOverlay">
-    <div class="login-card">
-        <div class="login-logo">
-              <img src="assets/icone_ar.png" alt="Logo Clima App">
-         </div>
-        <h2>Manutenção de Ar Condicionado</h2>
-        <p>Painel de Login</p>
-        
-        <div class="form-group">
-            <label>Usuário</label>
-            <input type="text" id="loginUser" placeholder="Usuário" autocomplete="username">
-        </div>
-        <div class="form-group" style="margin-bottom: 28px;">
-            <label>Senha</label>
-            <input type="password" id="loginPass" placeholder="Senha" autocomplete="current-password">
-        </div>
-        
-        <button onclick="autenticarSistema()" id="btnLogin" class="btn-target">Entrar</button>
+<!-- LOADER GLOBAL -->
+<div id="globalLoader">
+    <div class="loader-box">
+        <div class="spinner"></div>
+        <p id="loaderText">Carregando dados...</p>
     </div>
 </div>
 
-<div id="sistemaConteudo" class="desktop-layout">
-    
-    <div class="pc-sidebar">
-        <h2>Menu Técnico</h2>
-        <button class="pc-nav-btn active" id="pcNavDashboard" onclick="navegarApp('Dashboard')">📊 Painel Geral</button>
-        <button class="pc-nav-btn" id="pcNavNovo" onclick="navegarApp('Novo')">➕ Nova Intervenção</button>
-        <button class="pc-nav-btn" id="pcNavConfig" onclick="navegarApp('Config')">🔧 Ações Técnicas</button>
-        <button class="pc-nav-btn" style="color:var(--danger); margin-top: 40px;" onclick="efetuarLogout()">➔ Sair</button>
-    </div>
+<!-- PWA INSTALL -->
+<button id="pwaInstallBtn" onclick="triggerPwaInstall()">📲 Instalar App</button>
 
-    <div style="width: 100%; min-width: 0;">
-        
-        <div class="app-bar">
-            <div class="welcome">
-                <h1 id="txtOla">Olá, Técnico 👋</h1>
-                <p>Gestão de Climatização Avançada</p>
+<!-- ═══════════ LOGIN ═══════════ -->
+<div id="loginOverlay">
+    <div class="login-card">
+        <div class="login-logo-fallback">❄️</div>
+        <h2>Manutenção de Ar Condicionado</h2>
+        <p class="subtitle">Sistema de Gestão Técnica</p>
+
+        <div class="form-group">
+            <label>Usuário</label>
+            <input type="text" id="loginUser" placeholder="Digite seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')autenticarSistema()">
+        </div>
+        <div class="form-group" style="margin-bottom: 24px;">
+            <label>Senha</label>
+            <div class="password-wrapper">
+                <input type="password" id="loginPass" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')autenticarSistema()">
+                <button type="button" class="toggle-password" onclick="togglePasswordVisibility()" title="Mostrar/ocultar senha">👁️</button>
             </div>
-            <div style="text-align: right; font-size: 0.8rem; color:#64748b;">
-                <span id="txtDataHoje">--/--/----</span>
+        </div>
+        <button onclick="autenticarSistema()" id="btnLogin" class="btn btn-primary">Entrar no Sistema</button>
+    </div>
+</div>
+
+<!-- ═══════════ SISTEMA ═══════════ -->
+<div id="sistemaConteudo" class="desktop-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="pc-sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">❄️</div>
+            <div>
+                <span>ClimaApp</span>
+                <small>Gestão Técnica</small>
             </div>
         </div>
 
+        <div class="sidebar-section-label">Principal</div>
+        <button class="pc-nav-btn active" id="pcNavDashboard" onclick="navegarApp('Dashboard')">
+            <span class="nav-icon">📊</span> Painel Geral
+        </button>
+        <button class="pc-nav-btn" id="pcNavNovo" onclick="navegarApp('Novo')">
+            <span class="nav-icon">➕</span> Nova Manutenção
+        </button>
+
+        <div class="sidebar-section-label" style="margin-top:12px;">Configurações</div>
+        <button class="pc-nav-btn" id="pcNavConfig" onclick="navegarApp('Config')">
+            <span class="nav-icon">🔧</span> Tipos de Serviço
+        </button>
+
+        <div class="sidebar-spacer"></div>
+        <button class="pc-nav-btn pc-logout" onclick="efetuarLogout()">
+            <span class="nav-icon">🚪</span> Sair
+        </button>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main style="width: 100%; min-width: 0;">
+
+        <!-- APP BAR -->
+        <div class="app-bar">
+            <div>
+                <div class="welcome-name" id="txtOla">Olá, Técnico 🔧</div>
+                <div class="welcome-sub">Gestão de Climatização</div>
+            </div>
+            <div class="app-bar-right">
+                <div class="app-bar-date">
+                    <strong id="txtDataHoje">--/--/----</strong>
+                    <span>Hoje</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TELA DASHBOARD ── -->
         <div id="telaDashboard" class="tela active">
-            
+
+            <!-- Métricas -->
             <div class="metrics-grid">
-                <div class="m-card m-received">
-                    <div class="m-label">Realizadas</div>
+                <div class="m-card m-realizadas">
+                    <div class="m-label">✅ Realizadas</div>
                     <div class="m-value" id="cardRealizadas">0</div>
+                    <div class="m-trend">manutenções concluídas</div>
                 </div>
-                <div class="m-card m-paid">
-                    <div class="m-label">Atrasadas</div>
+                <div class="m-card m-atrasadas">
+                    <div class="m-label">🚨 Em Atraso</div>
                     <div class="m-value" id="cardAtrasadas">0</div>
+                    <div class="m-trend">requerem atenção</div>
                 </div>
-                <div class="m-card m-fluxo">
-                    <div class="m-label">Agendadas</div>
+                <div class="m-card m-agendadas">
+                    <div class="m-label">📅 Agendadas</div>
                     <div class="m-value" id="cardAgendadas">0</div>
+                    <div class="m-trend">próximas manutenções</div>
                 </div>
-                <div class="m-card m-previo">
-                    <div class="m-label">Total Geral</div>
-                    <div class="m-value" id="cardTotalGeral" style="color:#0f172a;">0</div>
+                <div class="m-card m-total">
+                    <div class="m-label">📋 Total</div>
+                    <div class="m-value" id="cardTotalGeral">0</div>
+                    <div class="m-trend">equipamentos cadastrados</div>
                 </div>
             </div>
 
+            <!-- Cronograma Anual -->
             <div class="months-container">
-                <span style="font-weight:700; font-size:0.75rem; text-transform:uppercase; color:#64748b; letter-spacing:0.5px;">Cronograma Anual</span>
+                <div class="section-header">
+                    <span class="section-title">📆 Cronograma Anual</span>
+                    <span id="anoAtual" style="font-size:0.78rem; color:var(--muted); font-weight:700;"></span>
+                </div>
                 <div class="months-grid" id="monthsGridContainer"></div>
             </div>
 
-            <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:12px; gap:8px;">
-                <span style="font-weight:700; font-size:0.8rem; text-transform:uppercase; color:#64748b;">CONTROLE DE MANUTENÇÃO</span>
-                <button onclick="imprimirPDF()" style="width:auto; padding:6px 12px; background:var(--dark); color:white; border-radius:10px; font-size:0.75rem; border:none; font-weight:600; cursor:pointer;">📄 Relatório A4</button>
+            <!-- Busca + Toolbar -->
+            <div class="search-bar-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Buscar por cliente, aparelho ou serviço..." oninput="renderSistemaGeral()">
             </div>
 
-            <div class="filter-wrapper">
-                <div class="filter-scroller">
-                    <button class="filter-btn active" onclick="switchFilter('pending', this)">Agendados</button>
-                    <button class="filter-btn" onclick="switchFilter('atrasadas', this)">Em Atraso 🚨</button>
-                    <button class="filter-btn" onclick="switchFilter('done', this)">Realizadas</button>
-                    <button class="filter-btn" onclick="switchFilter('all', this)">Todos</button>
-                    <button class="filter-btn" style="border-color: var(--primary); color: var(--primary);" onclick="switchFilter('equipamentos', this)">🏢 Todos os Equipamentos </button>
+            <div class="list-toolbar">
+                <div class="list-toolbar-top">
+                    <div class="filter-wrapper">
+                        <div class="filter-scroller">
+                            <button class="filter-btn active" onclick="switchFilter('pending', this)">Agendados</button>
+                            <button class="filter-btn danger" onclick="switchFilter('atrasadas', this)">Em Atraso 🚨</button>
+                            <button class="filter-btn" onclick="switchFilter('done', this)">Realizadas</button>
+                            <button class="filter-btn" onclick="switchFilter('all', this)">Com Data</button>
+                            <button class="filter-btn" onclick="switchFilter('equipamentos', this)">🏢 Todos</button>
+                        </div>
+                    </div>
                 </div>
+                <button onclick="imprimirPDF()" class="btn btn-dark btn-sm" style="flex-shrink:0; align-self:flex-start;">📄 Relatório</button>
             </div>
 
+            <!-- Tabela Desktop -->
             <div class="desktop-table-wrapper">
                 <table>
                     <thead>
                         <tr>
-                            <th>Cliente / Localização</th>
+                            <th>Cliente / Local</th>
                             <th>Aparelho / Modelo</th>
-                            <th>Ação Requerida</th>
+                            <th>Tipo de Serviço</th>
                             <th>Vencimento</th>
                             <th>Status</th>
                             <th>Ações</th>
@@ -352,481 +613,666 @@
                 </table>
             </div>
 
+            <!-- Cards Mobile -->
             <div class="mobile-cards-wrapper" id="mobileCardsContainer"></div>
 
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state fade-in" style="display:none;">
+                <div class="empty-icon">🔍</div>
+                <div class="empty-title">Nenhum registro encontrado</div>
+                <div class="empty-sub">Tente outro filtro ou cadastre uma nova manutenção</div>
+            </div>
+
+            <!-- Print Header (only for print) -->
             <div class="print-header">
-                <div style="display: flex; gap: 30px;">
-                    <div>
-                        <strong>Técnico Responsável:</strong> 
-                        <span id="pUser">-</span>
-                    </div>
-                    <div>
-                        <strong>Data de Emissão:</strong> 
-                        <span id="pDate">-</span>
-                    </div>
-                </div>
+                <h2 style="font-size:14pt; margin-bottom:8px;">Controle de Manutenção de Ar Condicionado</h2>
+                <table style="width:100%; border:none; font-size:9pt;">
+                    <tr>
+                        <td style="border:none; padding:0;"><strong>Técnico:</strong> <span id="pUser">-</span></td>
+                        <td style="border:none; padding:0;"><strong>Emissão:</strong> <span id="pDate">-</span></td>
+                    </tr>
+                </table>
             </div>
         </div>
 
+        <!-- ── TELA NOVO / EDIÇÃO ── -->
         <div id="telaNovo" class="tela">
-            <div style="background:white; padding:20px; border-radius:24px; box-shadow:var(--card-shadow); max-width: 600px; width:100%;">
-                <h2 id="formTitle" style="font-size:1.1rem; margin-bottom:16px;">Registrar Nova Manutenção</h2>
+            <div class="form-card">
+                <h2 id="formTitle">➕ Nova Manutenção</h2>
                 <form id="maintenanceForm" onsubmit="salvarRegistro(event)">
                     <input type="hidden" id="editRowId" value="">
-                    <div class="form-group">
-                        <label>Cliente / Localização</label>
-                        <input type="text" id="clientName" required placeholder="Ex: Auditório Principal">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Cliente / Localização</label>
+                            <input type="text" id="clientName" required placeholder="Ex: Auditório Principal">
+                        </div>
+                        <div class="form-group">
+                            <label>Aparelho / Modelo</label>
+                            <input type="text" id="model" required placeholder="Ex: Split Piso Teto 36k">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Aparelho / Modelo</label>
-                        <input type="text" id="model" required placeholder="Ex: Split Piso Teto">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tipo de Manutenção</label>
+                            <select id="maintenanceType" required onchange="updateServiceOptions()">
+                                <option value="Preventiva">Preventiva</option>
+                                <option value="Corretiva">Corretiva</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ação Específica</label>
+                            <select id="serviceType" required></select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Tipo de Manutenção</label>
-                        <select id="maintenanceType" required onchange="updateServiceOptions()">
-                            <option value="Preventiva">Preventiva</option>
-                            <option value="Corretiva">Corretiva</option>
-                        </select>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="maintStatus" required>
+                                <option value="Agendada">Agendada</option>
+                                <option value="Realizada">Realizada</option>
+                                <option value="Sem Data">Sem data definida</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Programada</label>
+                            <input type="date" id="lastDate">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Ação Específica</label>
-                        <select id="serviceType" required></select>
+
+                    <div class="form-actions">
+                        <button type="submit" id="btnSalvar" class="btn btn-primary">💾 Salvar</button>
+                        <button type="button" id="btnCancelarEdicao" class="btn btn-ghost" style="display:none;" onclick="cancelarEdicao()">Cancelar</button>
                     </div>
-                    <div class="form-group">
-                        <label>Status Operacional</label>
-                        <select id="maintStatus" required>
-                            <option value="Agendada">Agendada</option>
-                            <option value="Realizada">Realizada</option>
-                            <option value="Sem Data">Sem data definida</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="margin-bottom:24px;">
-                        <label>Data Programada (Opcional)</label>
-                        <input type="date" id="lastDate">
-                    </div>
-                    <button type="submit" id="btnSalvar" class="btn-target">Salvar Registro</button>
-                    <button type="button" id="btnCancelarEdicao" style="background:#64748b; margin-top:10px; display:none;" class="btn-target" onclick="cancelarEdicao()">Cancelar</button>
                 </form>
             </div>
         </div>
 
+        <!-- ── TELA CONFIG ── -->
         <div id="telaConfig" class="tela">
-            <div style="background:white; padding:20px; border-radius:24px; box-shadow:var(--card-shadow); max-width:600px; width:100%; margin-bottom:20px;">
-                <h2 style="font-size:1.1rem; margin-bottom:6px;">Cadastrar Nova Categoria</h2>
+            <div class="form-card" style="margin-bottom:20px;">
+                <h2>🔧 Cadastrar Tipo de Serviço</h2>
                 <form id="cadastroServicoForm" onsubmit="salvarNovaConfiguracao(event)">
-                    <div class="form-group">
-                        <label>Categoria de Manutenção</label>
-                        <select id="novoServicoCategoria" required>
-                            <option value="Preventiva">Preventiva</option>
-                            <option value="Corretiva">Corretiva</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <select id="novoServicoCategoria" required>
+                                <option value="Preventiva">Preventiva</option>
+                                <option value="Corretiva">Corretiva</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição do Serviço</label>
+                            <input type="text" id="novoServicoNome" placeholder="Ex: Higienização química" required>
+                        </div>
                     </div>
-                    <div class="form-group" style="margin-bottom:20px;">
-                        <label>Descrição do Serviço Técnico</label>
-                        <input type="text" id="novoServicoNome" placeholder="Ex: Higienização química" required>
-                    </div>
-                    <button type="submit" id="btnSalvarServico" class="btn-target" style="background:var(--dark);">Cadastrar Configuração</button>
+                    <button type="submit" class="btn btn-dark" style="width:100%;">Cadastrar Serviço</button>
                 </form>
             </div>
-            <div style="display:grid; grid-template-columns: 1fr; gap:16px; width:100%;" id="pcServicesGrid"></div>
+            <div class="config-grid" id="pcServicesGrid"></div>
         </div>
 
-    </div>
-
-    <div class="bottom-nav">
-        <button class="nav-item active" id="btnNavDashboard" onclick="navegarApp('Dashboard')">Painel</button>
-        <button class="nav-item" id="btnNavNovo" onclick="navegarApp('Novo')">Novo</button>
-        <button class="nav-item" id="btnNavConfig" onclick="navegarApp('Config')">Ações</button>
-    </div>
-
+    </main>
 </div>
 
+<!-- BOTTOM NAV (Mobile) -->
+<nav class="bottom-nav">
+    <button class="nav-item active" id="btnNavDashboard" onclick="navegarApp('Dashboard')">
+        <span class="nav-icon">📊</span> Painel
+    </button>
+    <button class="nav-item" id="btnNavNovo" onclick="navegarApp('Novo')">
+        <span class="nav-icon">➕</span> Novo
+    </button>
+    <button class="nav-item" id="btnNavConfig" onclick="navegarApp('Config')">
+        <span class="nav-icon">🔧</span> Tipos
+    </button>
+</nav>
+
 <script>
-    // INJETANDO O MANIFESTO WEB DINAMICAMENTE
-    const manifestJson = {
-        "name": "Controle de Climatização",
-        "short_name": "ClimaApp",
-        "description": "Painel de monitoramento técnico e agendamento de ar condicionado.",
-        "start_url": ".",
-        "display": "standalone",
-        "background_color": "#0f172a",
-        "theme_color": "#0284c7",
-        "icons": [
-            { 
-                "src": "assets/icone_ar.png", 
-                "sizes": "192x192", 
-                "type": "image/png",
-                "purpose": "any maskable"
-            },
-            { 
-                "src": "assets/icone_ar.png",
-                "sizes": "512x512", 
-                "type": "image/png",
-                "purpose": "any maskable"
-            }
-        ]
-    };
-    document.getElementById('pwa-manifest').setAttribute('href', 'data:application/manifest+json;base64,' + btoa(JSON.stringify(manifestJson)));
+// ══════════════════════════════════════════════
+// PWA: MANIFESTO + SERVICE WORKER
+// ══════════════════════════════════════════════
+const manifestJson = {
+    name: "Controle de Climatização",
+    short_name: "ClimaApp",
+    description: "Painel técnico de manutenção de ar condicionado.",
+    start_url: ".",
+    display: "standalone",
+    background_color: "#0f172a",
+    theme_color: "#0369a1",
+    icons: [
+        { src: "assets/icone_ar.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+        { src: "assets/icone_ar.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
+    ]
+};
+document.getElementById('pwa-manifest').setAttribute('href', 'data:application/manifest+json;base64,' + btoa(JSON.stringify(manifestJson)));
 
-    // ATIVAÇÃO DO SERVICE WORKER
-    if ('serviceWorker' in navigator) {
-        const swBlob = new Blob([`
-            const CACHE_NAME = 'clima-app-v1';
-            self.addEventListener('install', e => self.skipWaiting());
-            self.addEventListener('activate', e => e.waitUntil(clients.claim()));
-            self.addEventListener('fetch', e => {
-                if(e.request.method === 'GET' && e.request.url.startsWith(self.location.origin)) {
-                    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-                }
-            });
-        `], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(swBlob));
-    }
-
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('pwaInstallBtn').style.display = 'inline-flex';
-    });
-
-    function triggerPwaInstall() {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                document.getElementById('pwaInstallBtn').style.display = 'none';
-            }
-            deferredPrompt = null;
+if ('serviceWorker' in navigator) {
+    const swBlob = new Blob([`
+        const CACHE_NAME = 'clima-app-v2';
+        const STATIC = ['./', './index.html'];
+        self.addEventListener('install', e => {
+            e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(STATIC).catch(()=>{})));
+            self.skipWaiting();
         });
-    }
+        self.addEventListener('activate', e => e.waitUntil(
+            caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k))))
+                .then(() => clients.claim())
+        ));
+        self.addEventListener('fetch', e => {
+            if (e.request.method !== 'GET') return;
+            e.respondWith(
+                fetch(e.request).catch(() => caches.match(e.request))
+            );
+        });
+    `], { type: 'application/javascript' });
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob));
+}
 
-    // URL DO GOOGLE APPS SCRIPT
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpcMEoZbmWd2g7Idua90aEF6ou7evplq_TAjXyd_3vyhMDUr3Cf0C4IWrI7Y4lDXFbRg/exec";
-
-    let records = [];
-    let currentFilter = 'pending';
-    let servicesData = { Preventiva: [], Corretiva: [] };
-    const nomesMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-
-    window.addEventListener('load', function() {
-        document.getElementById('txtDataHoje').innerText = new Date().toLocaleDateString('pt-BR');
-        const loginSalvo = localStorage.getItem('usuarioClima');
-        if(loginSalvo) logarSucesso(loginSalvo);
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('pwaInstallBtn').style.display = 'inline-flex';
+});
+function triggerPwaInstall() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+        if (r.outcome === 'accepted') document.getElementById('pwaInstallBtn').style.display = 'none';
+        deferredPrompt = null;
     });
+}
 
-    async function autenticarSistema() {
-        const btn = document.getElementById('btnLogin');
-        const user = document.getElementById('loginUser').value.trim();
-        const pass = document.getElementById('loginPass').value.trim();
+// ══════════════════════════════════════════════
+// TOAST SYSTEM
+// ══════════════════════════════════════════════
+function showToast(msg, type = 'default', duration = 3500) {
+    const icons = { success: '✅', error: '❌', warning: '⚠️', default: 'ℹ️' };
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span>${icons[type] || icons.default}</span><span>${msg}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
 
-        if(!user || !pass) return alert("Insira os dados.");
-        btn.innerText = "VERIFICANDO..."; btn.disabled = true;
+// ══════════════════════════════════════════════
+// LOADER
+// ══════════════════════════════════════════════
+function showLoader(text = 'Carregando...') {
+    document.getElementById('loaderText').innerText = text;
+    document.getElementById('globalLoader').classList.add('show');
+}
+function hideLoader() {
+    document.getElementById('globalLoader').classList.remove('show');
+}
 
-        try {
-            const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "login", username: user, password: pass }) });
-            const data = await r.json();
-            if(data.result === "success") {
-                localStorage.setItem('usuarioClima', data.user);
-                logarSucesso(data.user);
-            } else { alert("Acesso negado."); }
-        } catch(e) { alert("Erro de comunicação com o servidor."); }
-        finally { btn.innerText = "Entrar"; btn.disabled = false; }
-    }
+// ══════════════════════════════════════════════
+// ESTADO GLOBAL
+// ══════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpcMEoZbmWd2g7Idua90aEF6ou7evplq_TAjXyd_3vyhMDUr3Cf0C4IWrI7Y4lDXFbRg/exec";
 
-    function logarSucesso(user) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('sistemaConteudo').style.display = 'grid';
-        document.getElementById('txtOla').innerText = `Olá, ${user} 🔧`;
-        loadDataFromSheets();
-    }
+let records = [];
+let currentFilter = 'pending';
+let servicesData = { Preventiva: [], Corretiva: [] };
+const nomesMeses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
-    function efetuarLogout() { localStorage.clear(); window.location.reload(); }
+// ══════════════════════════════════════════════
+// INICIALIZAÇÃO
+// ══════════════════════════════════════════════
+window.addEventListener('load', function() {
+    const hoje = new Date();
+    document.getElementById('txtDataHoje').innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
+    document.getElementById('anoAtual').innerText = hoje.getFullYear();
+    const loginSalvo = sessionStorage.getItem('usuarioClima') || localStorage.getItem('usuarioClima');
+    if (loginSalvo) logarSucesso(loginSalvo, true);
+});
 
-    async function loadDataFromSheets() {
-        try {
-            const response = await fetch(SCRIPT_URL);
-            const data = await response.json();
-            if(data.services) servicesData = data.services;
-            records = data.records || [];
-            updateServiceOptions();
-            renderSistemaGeral();
-            renderConfiguracoes();
-        } catch (error) { console.error(error); }
-    }
+// ══════════════════════════════════════════════
+// AUTENTICAÇÃO
+// ══════════════════════════════════════════════
+function togglePasswordVisibility() {
+    const input = document.getElementById('loginPass');
+    const btn = document.querySelector('.toggle-password');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.innerText = input.type === 'password' ? '👁️' : '🙈';
+}
 
-    function updateServiceOptions() {
-        const type = document.getElementById('maintenanceType').value;
-        const serviceSelect = document.getElementById('serviceType');
-        serviceSelect.innerHTML = '';
-        
-        const options = servicesData[type] || [];
-        if(options.length === 0) {
-            const opt = document.createElement('option');
-            opt.text = "Geral"; opt.value = "Geral";
-            serviceSelect.appendChild(opt);
+async function autenticarSistema() {
+    const btn = document.getElementById('btnLogin');
+    const user = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value.trim();
+    if (!user || !pass) { showToast('Preencha usuário e senha.', 'warning'); return; }
+
+    btn.innerText = 'VERIFICANDO...'; btn.disabled = true;
+    showLoader('Autenticando...');
+    try {
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "login", username: user, password: pass }) });
+        const data = await r.json();
+        if (data.result === "success") {
+            localStorage.setItem('usuarioClima', data.user);
+            logarSucesso(data.user, false);
         } else {
-            options.forEach(srv => {
-                const opt = document.createElement('option');
-                opt.text = srv; opt.value = srv;
-                serviceSelect.appendChild(opt);
-            });
+            showToast('Usuário ou senha incorretos.', 'error');
         }
+    } catch(e) {
+        showToast('Erro de conexão com o servidor.', 'error');
+    } finally {
+        btn.innerText = 'Entrar no Sistema'; btn.disabled = false;
+        hideLoader();
     }
+}
 
-    function renderSistemaGeral() {
-        const mCards = document.getElementById('mobileCardsContainer');
-        const pcTable = document.getElementById('desktopTableBody');
-        
-        mCards.innerHTML = '';
-        pcTable.innerHTML = '';
+function logarSucesso(user, silencioso = false) {
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('sistemaConteudo').style.display = 'grid';
+    document.getElementById('txtOla').innerText = `Olá, ${user} 🔧`;
+    if (!silencioso) showToast(`Bem-vindo, ${user}!`, 'success');
+    loadDataFromSheets();
+}
 
-        let cRealizadas = 0, cAtrasadas = 0, cAgendadas = 0, totalGeral = records.length;
-        let mesesContadores = Array(12).fill(0);
-        const hoje = new Date(); hoje.setHours(0,0,0,0);
+function efetuarLogout() {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.reload();
+}
 
-        records.forEach(item => {
-            if (!item.lastDate && currentFilter !== 'equipamentos') return;
-
-            let estaAtrasada = false;
-            let dataMaint = null;
-
-            if (item.lastDate) {
-                let partes = item.lastDate.split('-');
-                dataMaint = new Date(partes[0], partes[1] - 1, partes[2]);
-                dataMaint.setHours(0,0,0,0);
-                estaAtrasada = hoje > dataMaint && item.status !== 'Realizada';
-            }
-
-            if(item.status === 'Realizada') cRealizadas++;
-            else if(estaAtrasada) {
-                cAtrasadas++;
-                if(dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) {
-                    mesesContadores[dataMaint.getMonth()]++;
-                }
-            }
-            else if(item.status === 'Agendada') {
-                cAgendadas++;
-                if(dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) {
-                    mesesContadores[dataMaint.getMonth()]++;
-                }
-            }
-
-            if (currentFilter === 'pending' && (item.status !== 'Agendada' || estaAtrasada)) return;
-            if (currentFilter === 'atrasadas' && !estaAtrasada) return;
-            if (currentFilter === 'done' && item.status !== 'Realizada') return;
-            if (currentFilter === 'all' && !item.lastDate) return; 
-
-            let bClass = 'status-agendada', bText = 'Agendada';
-            if(item.status === 'Realizada') { bClass = 'status-realizada'; bText = 'Realizada'; }
-            else if(estaAtrasada) { bClass = 'status-atrasada'; bText = 'Atrasada'; }
-            else if(!item.lastDate) { bClass = 'status-semdata'; bText = 'Sem data'; }
-
-            const botaoBaixa = (item.status !== 'Realizada' && item.lastDate)
-                ? `<button class="btn-target mini-btn" style="background:var(--success);" onclick="darBaixaRegistro(${item.rowId})">✓ Concluir</button>` : '';
-
-            // Render Mobile Card
-            const card = document.createElement('div');
-            card.className = 'device-card';
-            card.innerHTML = `
-                <div class="device-card-header">
-                    <div>
-                        <div class="device-title">${item.clientName}</div>
-                        <div class="device-sub">${item.model}</div>
-                    </div>
-                    <span class="badge-status ${bClass}">${bText}</span>
-                </div>
-                <div class="device-details">
-                    <strong>Ação:</strong> ${item.maintenanceType} - ${item.serviceType || 'Geral'}<br>
-                    <strong>Vencimento:</strong> ${item.lastDate ? formatDateBR(item.lastDate) : 'Não definido'}
-                </div>
-                <div class="device-actions">
-                    ${botaoBaixa}
-                    <button class="btn-target mini-btn" style="background:#e2e8f0; color:var(--dark);" onclick="prepararEdicao(${item.rowId})">📝</button>
-                    <button class="btn-target mini-btn" style="background:#fef2f2; color:var(--danger);" onclick="excluirRegistro(${item.rowId})">🗑️</button>
-                </div>
-            `;
-            mCards.appendChild(card);
-
-            // Render Desktop Table Row
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${item.clientName}</strong></td>
-                <td>${item.model}</td>
-                <td>${item.maintenanceType} - ${item.serviceType || 'Geral'}</td>
-                <td>${item.lastDate ? formatDateBR(item.lastDate) : 'Sem data'}</td>
-                <td><span class="badge-status ${bClass}">${bText}</span></td>
-                <td>
-                    <div style="display:flex; gap:6px;">
-                        ${botaoBaixa}
-                        <button class="btn-target mini-btn" style="background:#e2e8f0; color:var(--dark); width:32px;" onclick="prepararEdicao(${item.rowId})">📝</button>
-                        <button class="btn-target mini-btn" style="background:#fef2f2; color:var(--danger); width:32px;" onclick="excluirRegistro(${item.rowId})">🗑️</button>
-                    </div>
-                </td>
-            `;
-            pcTable.appendChild(tr);
-        });
-
-        // Atualizar painéis numéricos
-        document.getElementById('cardRealizadas').innerText = cRealizadas;
-        document.getElementById('cardAtrasadas').innerText = cAtrasadas;
-        document.getElementById('cardAgendadas').innerText = cAgendadas;
-        document.getElementById('cardTotalGeral').innerText = totalGeral;
-
-        renderCronogramaAnual(mesesContadores);
-    }
-
-    function renderCronogramaAnual(mesesContadores) {
-        const container = document.getElementById('monthsGridContainer');
-        container.innerHTML = '';
-        nomesMeses.forEach((mes, idx) => {
-            const box = document.createElement('div');
-            box.className = 'month-bar-card';
-            box.innerHTML = `
-                <div class="month-name">${mes}</div>
-                <div class="month-counter" style="${mesesContadores[idx] > 0 ? 'color: var(--danger); font-weight:900;' : ''}">${mesesContadores[idx]}</div>
-            `;
-            container.appendChild(box);
-        });
-    }
-
-    function renderConfiguracoes() {
-        const grid = document.getElementById('pcServicesGrid');
-        grid.innerHTML = '';
-        ['Preventiva', 'Corretiva'].forEach(cat => {
-            const div = document.createElement('div');
-            div.style = "background:white; padding:16px; border-radius:20px; border:1px solid #e2e8f0;";
-            div.innerHTML = `<h3 style='font-size:0.9rem; color:var(--primary); margin-bottom:10px;'>${cat}</h3>`;
-            const lista = servicesData[cat] || [];
-            lista.forEach(s => {
-                div.innerHTML += `<div style='font-size:0.85rem; padding:6px 0; border-bottom:1px dashed #e2e8f0; display:flex; justify-content:between;'><span>• ${s}</span></div>`;
-            });
-            grid.appendChild(div);
-        });
-    }
-
-    function switchFilter(type, btn) {
-        currentFilter = type;
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+// ══════════════════════════════════════════════
+// CARREGAMENTO DE DADOS
+// ══════════════════════════════════════════════
+async function loadDataFromSheets() {
+    showLoader('Carregando dados...');
+    try {
+        const response = await fetch(SCRIPT_URL);
+        const data = await response.json();
+        if (data.services) servicesData = data.services;
+        records = data.records || [];
+        updateServiceOptions();
         renderSistemaGeral();
+        renderConfiguracoes();
+    } catch (error) {
+        showToast('Erro ao carregar dados. Verifique a conexão.', 'error');
+        console.error(error);
+    } finally {
+        hideLoader();
     }
+}
 
-    function navegarApp(telaId) {
-        document.querySelectorAll('.tela').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.pc-nav-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        
-        document.getElementById(`tela${telaId}`).classList.add('active');
-        
-        const pcBtn = document.getElementById(`pcNav${telaId}`);
-        const mobBtn = document.getElementById(`btnNav${telaId}`);
-        if(pcBtn) pcBtn.classList.add('active');
-        if(mobBtn) mobBtn.classList.add('active');
+// ══════════════════════════════════════════════
+// OPÇÕES DE SERVIÇO
+// ══════════════════════════════════════════════
+function updateServiceOptions() {
+    const type = document.getElementById('maintenanceType').value;
+    const serviceSelect = document.getElementById('serviceType');
+    serviceSelect.innerHTML = '';
+    const options = servicesData[type] || [];
+    if (options.length === 0) {
+        serviceSelect.innerHTML = '<option value="Geral">Geral</option>';
+    } else {
+        options.forEach(srv => {
+            const opt = document.createElement('option');
+            opt.text = opt.value = srv;
+            serviceSelect.appendChild(opt);
+        });
     }
+}
 
-    function formatDateBR(dateStr) {
-        if(!dateStr) return '';
-        let p = dateStr.split('-');
-        return `${p[2]}/${p[1]}/${p[0]}`;
+// ══════════════════════════════════════════════
+// RENDERIZAÇÃO PRINCIPAL
+// ══════════════════════════════════════════════
+function renderSistemaGeral() {
+    const mCards = document.getElementById('mobileCardsContainer');
+    const pcTable = document.getElementById('desktopTableBody');
+    const emptyState = document.getElementById('emptyState');
+    const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+
+    mCards.innerHTML = '';
+    pcTable.innerHTML = '';
+
+    let cRealizadas = 0, cAtrasadas = 0, cAgendadas = 0;
+    let mesesContadores = Array(12).fill(0);
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    let visibleCount = 0;
+
+    records.forEach(item => {
+        // Calcular status real
+        let estaAtrasada = false;
+        let dataMaint = null;
+        if (item.lastDate) {
+            const [y, m, d] = item.lastDate.split('-').map(Number);
+            dataMaint = new Date(y, m - 1, d);
+            dataMaint.setHours(0,0,0,0);
+            estaAtrasada = hoje > dataMaint && item.status !== 'Realizada';
+        }
+
+        // Contadores de métricas (sem filtro de busca)
+        if (item.status === 'Realizada') cRealizadas++;
+        else if (estaAtrasada) {
+            cAtrasadas++;
+            if (dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) mesesContadores[dataMaint.getMonth()]++;
+        }
+        else if (item.status === 'Agendada') {
+            cAgendadas++;
+            if (dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) mesesContadores[dataMaint.getMonth()]++;
+        }
+
+        // Filtro de aba
+        if (!item.lastDate && currentFilter !== 'equipamentos') return;
+        if (currentFilter === 'pending'      && (item.status !== 'Agendada' || estaAtrasada)) return;
+        if (currentFilter === 'atrasadas'    && !estaAtrasada) return;
+        if (currentFilter === 'done'         && item.status !== 'Realizada') return;
+        if (currentFilter === 'all'          && !item.lastDate) return;
+
+        // Busca por texto
+        if (searchTerm) {
+            const haystack = `${item.clientName} ${item.model} ${item.maintenanceType} ${item.serviceType}`.toLowerCase();
+            if (!haystack.includes(searchTerm)) return;
+        }
+
+        visibleCount++;
+
+        // Badge e estilo
+        let bClass = 'badge-agendada', bText = 'Agendada';
+        if      (item.status === 'Realizada') { bClass = 'badge-realizada'; bText = 'Realizada'; }
+        else if (estaAtrasada)                 { bClass = 'badge-atrasada';  bText = 'Atrasada'; }
+        else if (!item.lastDate)               { bClass = 'badge-semdata';   bText = 'Sem data'; }
+
+        const dataBR = item.lastDate ? formatDateBR(item.lastDate) : 'Não definida';
+        const botaoConcluir = (item.status !== 'Realizada' && item.lastDate)
+            ? `<button class="btn btn-success btn-sm btn-icon" title="Marcar como concluída" onclick="darBaixaRegistro(${item.rowId})">✓</button>` : '';
+
+        // Card Mobile
+        const card = document.createElement('div');
+        card.className = 'device-card fade-in';
+        card.innerHTML = `
+            <div class="device-card-header">
+                <div>
+                    <div class="device-title">${escapeHtml(item.clientName)}</div>
+                    <div class="device-sub">${escapeHtml(item.model)}</div>
+                </div>
+                <span class="badge ${bClass}">${bText}</span>
+            </div>
+            <div class="device-details">
+                <strong>Serviço:</strong> ${escapeHtml(item.maintenanceType)} · ${escapeHtml(item.serviceType || 'Geral')}<br>
+                <strong>Vencimento:</strong> ${dataBR}
+            </div>
+            <div class="device-actions">
+                ${botaoConcluir}
+                <button class="btn btn-ghost btn-sm btn-icon" title="Editar" onclick="prepararEdicao(${item.rowId})">📝</button>
+                <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="excluirRegistro(${item.rowId})">🗑️</button>
+            </div>
+        `;
+        mCards.appendChild(card);
+
+        // Linha Desktop
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="td-client"><strong>${escapeHtml(item.clientName)}</strong><span>${escapeHtml(item.model)}</span></td>
+            <td>${escapeHtml(item.model)}</td>
+            <td>${escapeHtml(item.maintenanceType)} · ${escapeHtml(item.serviceType || 'Geral')}</td>
+            <td>${dataBR}</td>
+            <td><span class="badge ${bClass}">${bText}</span></td>
+            <td>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    ${botaoConcluir}
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Editar" onclick="prepararEdicao(${item.rowId})">📝</button>
+                    <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="excluirRegistro(${item.rowId})">🗑️</button>
+                </div>
+            </td>
+        `;
+        pcTable.appendChild(tr);
+    });
+
+    // Atualizar métricas
+    document.getElementById('cardRealizadas').innerText = cRealizadas;
+    document.getElementById('cardAtrasadas').innerText  = cAtrasadas;
+    document.getElementById('cardAgendadas').innerText  = cAgendadas;
+    document.getElementById('cardTotalGeral').innerText = records.length;
+
+    // Empty state
+    emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+
+    renderCronogramaAnual(mesesContadores);
+}
+
+function renderCronogramaAnual(contadores) {
+    const container = document.getElementById('monthsGridContainer');
+    container.innerHTML = '';
+    const mesAtual = new Date().getMonth();
+    nomesMeses.forEach((mes, idx) => {
+        const box = document.createElement('div');
+        const hasItems = contadores[idx] > 0;
+        const isCurrent = idx === mesAtual;
+        box.className = `month-bar-card${hasItems ? ' has-items' : ''}${isCurrent ? ' current-month' : ''}`;
+        box.innerHTML = `<div class="month-name">${mes}</div><div class="month-counter">${contadores[idx]}</div>`;
+        container.appendChild(box);
+    });
+}
+
+// ══════════════════════════════════════════════
+// CONFIGURAÇÕES / TIPOS DE SERVIÇO
+// ══════════════════════════════════════════════
+function renderConfiguracoes() {
+    const grid = document.getElementById('pcServicesGrid');
+    grid.innerHTML = '';
+    ['Preventiva', 'Corretiva'].forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'config-card';
+        const lista = servicesData[cat] || [];
+        const itens = lista.length
+            ? lista.map(s => `<div class="service-item"><span>• ${escapeHtml(s)}</span><button onclick="excluirServico('${cat}','${escapeHtml(s)}')">Remover</button></div>`).join('')
+            : `<div style="font-size:0.82rem; color:var(--muted); padding:8px 0;">Nenhum serviço cadastrado.</div>`;
+        card.innerHTML = `<div class="config-card-title">${cat}</div>${itens}`;
+        grid.appendChild(card);
+    });
+}
+
+// ══════════════════════════════════════════════
+// FILTROS E NAVEGAÇÃO
+// ══════════════════════════════════════════════
+function switchFilter(type, btn) {
+    currentFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSistemaGeral();
+}
+
+function navegarApp(telaId) {
+    document.querySelectorAll('.tela').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.pc-nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById(`tela${telaId}`)?.classList.add('active');
+    document.getElementById(`pcNav${telaId}`)?.classList.add('active');
+    document.getElementById(`btnNav${telaId}`)?.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+// UTILITÁRIOS
+// ══════════════════════════════════════════════
+function formatDateBR(dateStr) {
+    if (!dateStr) return '';
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════════
+// CRUD — SALVAR / EDITAR
+// ══════════════════════════════════════════════
+async function salvarRegistro(e) {
+    e.preventDefault();
+    const rowId = document.getElementById('editRowId').value;
+    const payload = {
+        action: rowId ? "edit" : "create",
+        rowId: rowId || undefined,
+        clientName:      document.getElementById('clientName').value.trim(),
+        model:           document.getElementById('model').value.trim(),
+        maintenanceType: document.getElementById('maintenanceType').value,
+        serviceType:     document.getElementById('serviceType').value,
+        status:          document.getElementById('maintStatus').value,
+        lastDate:        document.getElementById('lastDate').value
+    };
+
+    const btn = document.getElementById('btnSalvar');
+    btn.innerText = 'SALVANDO...'; btn.disabled = true;
+    showLoader('Salvando registro...');
+    try {
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const data = await r.json();
+        if (data.result === "success") {
+            showToast(rowId ? 'Registro atualizado!' : 'Manutenção cadastrada!', 'success');
+            cancelarEdicao();
+            await loadDataFromSheets();
+            navegarApp('Dashboard');
+        } else {
+            showToast('Erro ao salvar. Tente novamente.', 'error');
+        }
+    } catch(err) {
+        showToast('Erro de conexão ao salvar.', 'error');
+    } finally {
+        btn.innerText = '💾 Salvar'; btn.disabled = false;
+        hideLoader();
     }
+}
 
-    // OPERAÇÕES DE CRUD (COMUNICAÇÃO WEB APP)
-    async function salvarRegistro(e) {
-        e.preventDefault();
-        const rowId = document.getElementById('editRowId').value;
-        const payload = {
-            action: rowId ? "edit" : "create",
-            rowId: rowId || undefined,
-            clientName: document.getElementById('clientName').value,
-            model: document.getElementById('model').value,
-            maintenanceType: document.getElementById('maintenanceType').value,
-            serviceType: document.getElementById('serviceType').value,
-            status: document.getElementById('maintStatus').value,
-            lastDate: document.getElementById('lastDate').value
-        };
-
-        const btn = document.getElementById('btnSalvar');
-        btn.innerText = "SALVANDO..."; btn.disabled = true;
-
-        try {
-            const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-            const data = await r.json();
-            if(data.result === "success") {
-                alert("Operação realizada com sucesso!");
-                cancelarEdicao();
-                loadDataFromSheets();
-                navegarApp('Dashboard');
-            }
-        } catch(err) { alert("Erro ao salvar."); }
-        finally { btn.innerText = "Salvar Registro"; btn.disabled = false; }
+// ══════════════════════════════════════════════
+// CRUD — CONCLUIR
+// ══════════════════════════════════════════════
+async function darBaixaRegistro(rowId) {
+    if (!confirm('Confirmar a conclusão deste serviço?')) return;
+    showLoader('Registrando conclusão...');
+    try {
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "conclude", rowId }) });
+        const data = await r.json();
+        if (data.result === "success") {
+            showToast('Serviço marcado como realizado!', 'success');
+            await loadDataFromSheets();
+        } else {
+            showToast('Erro ao concluir serviço.', 'error');
+        }
+    } catch(e) {
+        showToast('Erro de conexão.', 'error');
+    } finally {
+        hideLoader();
     }
+}
 
-    async function darBaixaRegistro(rowId) {
-        if(!confirm("Confirmar a conclusão deste serviço?")) return;
-        try {
-            const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "conclude", rowId: rowId }) });
-            const data = await r.json();
-            if(data.result === "success") { loadDataFromSheets(); }
-        } catch(e) { alert("Erro ao concluir."); }
+// ══════════════════════════════════════════════
+// CRUD — EDIÇÃO
+// ══════════════════════════════════════════════
+function prepararEdicao(rowId) {
+    const item = records.find(r => r.rowId === rowId);
+    if (!item) return;
+
+    document.getElementById('editRowId').value       = item.rowId;
+    document.getElementById('clientName').value      = item.clientName;
+    document.getElementById('model').value           = item.model;
+    document.getElementById('maintenanceType').value = item.maintenanceType;
+    updateServiceOptions();
+    document.getElementById('serviceType').value     = item.serviceType;
+    document.getElementById('maintStatus').value     = item.status;
+    document.getElementById('lastDate').value        = item.lastDate || '';
+
+    document.getElementById('formTitle').innerText = '📝 Editar Manutenção';
+    document.getElementById('btnCancelarEdicao').style.display = 'block';
+    navegarApp('Novo');
+}
+
+function cancelarEdicao() {
+    document.getElementById('maintenanceForm').reset();
+    document.getElementById('editRowId').value = '';
+    document.getElementById('formTitle').innerText = '➕ Nova Manutenção';
+    document.getElementById('btnCancelarEdicao').style.display = 'none';
+    updateServiceOptions();
+}
+
+// ══════════════════════════════════════════════
+// CRUD — EXCLUIR REGISTRO
+// ══════════════════════════════════════════════
+async function excluirRegistro(rowId) {
+    if (!confirm('Apagar permanentemente este registro?')) return;
+    showLoader('Excluindo...');
+    try {
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "delete", rowId }) });
+        const data = await r.json();
+        if (data.result === "success") {
+            showToast('Registro excluído.', 'warning');
+            await loadDataFromSheets();
+        } else {
+            showToast('Erro ao excluir.', 'error');
+        }
+    } catch(e) {
+        showToast('Erro de conexão.', 'error');
+    } finally {
+        hideLoader();
     }
+}
 
-    function prepararEdicao(rowId) {
-        const item = records.find(r => r.rowId === rowId);
-        if(!item) return;
-
-        document.getElementById('editRowId').value = item.rowId;
-        document.getElementById('clientName').value = item.clientName;
-        document.getElementById('model').value = item.model;
-        document.getElementById('maintenanceType').value = item.maintenanceType;
-        updateServiceOptions();
-        document.getElementById('serviceType').value = item.serviceType;
-        document.getElementById('maintStatus').value = item.status;
-        document.getElementById('lastDate').value = item.lastDate || '';
-
-        document.getElementById('formTitle').innerText = "Editar Manutenção";
-        document.getElementById('btnCancelarEdicao').style.display = "block";
-        navegarApp('Novo');
+// ══════════════════════════════════════════════
+// CRUD — SALVAR CONFIG
+// ══════════════════════════════════════════════
+async function salvarNovaConfiguracao(e) {
+    e.preventDefault();
+    const cat  = document.getElementById('novoServicoCategoria').value;
+    const nome = document.getElementById('novoServicoNome').value.trim();
+    showLoader('Salvando configuração...');
+    try {
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "addConfig", category: cat, name: nome }) });
+        const data = await r.json();
+        if (data.result === "success") {
+            showToast(`Serviço "${nome}" adicionado!`, 'success');
+            document.getElementById('cadastroServicoForm').reset();
+            await loadDataFromSheets();
+        } else {
+            showToast('Erro ao salvar configuração.', 'error');
+        }
+    } catch(err) {
+        showToast('Erro de conexão.', 'error');
+    } finally {
+        hideLoader();
     }
+}
 
-    function cancelarEdicao() {
-        document.getElementById('maintenanceForm').reset();
-        document.getElementById('editRowId').value = '';
-        document.getElementById('formTitle').innerText = "Registrar Nova Manutenção";
-        document.getElementById('btnCancelarEdicao').style.display = "none";
-        updateServiceOptions();
+// ══════════════════════════════════════════════
+// CRUD — EXCLUIR SERVIÇO (CONFIG)
+// ══════════════════════════════════════════════
+async function excluirServico(categoria, nome) {
+    if (!confirm(`Remover "${nome}" da lista de ${categoria}?`)) return;
+    showLoader('Removendo serviço...');
+    try {
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "removeConfig", category: categoria, name: nome }) });
+        const data = await r.json();
+        if (data.result === "success") {
+            showToast('Serviço removido.', 'warning');
+            await loadDataFromSheets();
+        } else {
+            showToast('Erro ao remover serviço.', 'error');
+        }
+    } catch(err) {
+        showToast('Erro de conexão.', 'error');
+    } finally {
+        hideLoader();
     }
+}
 
-    async function excluirRegistro(rowId) {
-        if(!confirm("Tem certeza que deseja apagar permanentemente esse registro?")) return;
-        try {
-            const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "delete", rowId: rowId }) });
-            const data = await r.json();
-            if(data.result === "success") { loadDataFromSheets(); }
-        } catch(e) { alert("Erro ao excluir."); }
-    }
-
-    async function salvarNovaConfiguracao(e) {
-        e.preventDefault();
-        const cat = document.getElementById('novoServicoCategoria').value;
-        const nome = document.getElementById('novoServicoNome').value.trim();
-
-        try {
-            const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "addConfig", category: cat, name: nome }) });
-            const data = await r.json();
-            if(data.result === "success") {
-                alert("Configuração adicionada!");
-                document.getElementById('cadastroServicoForm').reset();
-                loadDataFromSheets();
-            }
-        } catch(err) { alert("Erro ao salvar configuração."); }
-    }
-
-    function imprimirPDF() {
-        document.getElementById('pUser').innerText = localStorage.getItem('usuarioClima') || 'Técnico';
-        document.getElementById('pDate').innerText = new Date().toLocaleDateString('pt-BR');
-        window.print();
-    }
+// ══════════════════════════════════════════════
+// IMPRESSÃO
+// ══════════════════════════════════════════════
+function imprimirPDF() {
+    document.getElementById('pUser').innerText = localStorage.getItem('usuarioClima') || 'Técnico';
+    document.getElementById('pDate').innerText = new Date().toLocaleDateString('pt-BR');
+    window.print();
+}
 </script>
 </body>
 </html>
