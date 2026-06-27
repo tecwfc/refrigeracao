@@ -295,16 +295,8 @@
 
         /* ─── TOOLBAR ─── */
         .list-toolbar {
-            display: flex; flex-direction: column;
-            margin-bottom: 12px; gap: 8px;
-        }
-        .list-toolbar-top {
-            display: flex; justify-content: space-between; align-items: center; gap: 10px;
-        }
-        .list-toolbar-top .filter-wrapper { flex: 1; margin-bottom: 0; min-width: 0; }
-        @media (min-width: 640px) {
-            .list-toolbar { flex-direction: row; align-items: center; }
-            .list-toolbar-top { flex: 1; min-width: 0; }
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; gap: 10px; flex-wrap: wrap;
         }
 
         /* ─── TABELA DESKTOP ─── */
@@ -582,18 +574,15 @@
             </div>
 
             <div class="list-toolbar">
-                <div class="list-toolbar-top">
-                    <div class="filter-wrapper">
-                        <div class="filter-scroller">
-                            <button class="filter-btn active" onclick="switchFilter('pending', this)">Agendados</button>
-                            <button class="filter-btn danger" onclick="switchFilter('atrasadas', this)">Em Atraso 🚨</button>
-                            <button class="filter-btn" onclick="switchFilter('done', this)">Realizadas</button>
-                            <button class="filter-btn" onclick="switchFilter('all', this)">Com Data</button>
-                            <button class="filter-btn" onclick="switchFilter('equipamentos', this)">🏢 Todos</button>
-                        </div>
+                <div class="filter-wrapper" style="margin-bottom:0; flex:1;">
+                    <div class="filter-scroller">
+                        <button class="filter-btn active" onclick="switchFilter('agendadas', this)">📅 Agendadas</button>
+                        <button class="filter-btn" onclick="switchFilter('concluidas', this)">✅ Concluídas</button>
+                        <button class="filter-btn danger" onclick="switchFilter('atrasadas', this)">🚨 Atrasadas</button>
+                        <button class="filter-btn" onclick="switchFilter('todos', this)">📋 Todos</button>
                     </div>
                 </div>
-                <button onclick="imprimirPDF()" class="btn btn-dark btn-sm" style="flex-shrink:0; align-self:flex-start;">📄 Relatório</button>
+                <button onclick="imprimirPDF()" class="btn btn-dark btn-sm" style="flex-shrink:0;">📄 Relatório</button>
             </div>
 
             <!-- Tabela Desktop -->
@@ -819,7 +808,7 @@ function hideLoader() {
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpcMEoZbmWd2g7Idua90aEF6ou7evplq_TAjXyd_3vyhMDUr3Cf0C4IWrI7Y4lDXFbRg/exec";
 
 let records = [];
-let currentFilter = 'pending';
+let currentFilter = 'agendadas';
 let servicesData = { Preventiva: [], Corretiva: [] };
 const nomesMeses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
@@ -940,34 +929,56 @@ function renderSistemaGeral() {
     const hoje = new Date(); hoje.setHours(0,0,0,0);
     let visibleCount = 0;
 
-    records.forEach(item => {
+    // Filtrar apenas registros da planilha principal (ignorar histórico)
+    const activeRecords = records.filter(r => r.origem !== 'historico');
+
+    activeRecords.forEach(item => {
         // Calcular status real
         let estaAtrasada = false;
         let dataMaint = null;
-        if (item.lastDate) {
+        if (item.lastDate && item.status !== 'Realizada') {
             const [y, m, d] = item.lastDate.split('-').map(Number);
             dataMaint = new Date(y, m - 1, d);
             dataMaint.setHours(0,0,0,0);
-            estaAtrasada = hoje > dataMaint && item.status !== 'Realizada';
+            estaAtrasada = hoje > dataMaint;
         }
 
-        // Contadores de métricas (sem filtro de busca)
-        if (item.status === 'Realizada') cRealizadas++;
-        else if (estaAtrasada) {
+        // Contadores de métricas
+        if (item.status === 'Realizada') {
+            cRealizadas++;
+        } else if (estaAtrasada) {
             cAtrasadas++;
-            if (dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) mesesContadores[dataMaint.getMonth()]++;
-        }
-        else if (item.status === 'Agendada') {
+            if (dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) {
+                mesesContadores[dataMaint.getMonth()]++;
+            }
+        } else if (item.status === 'Agendada' || item.status === 'Aguardando') {
             cAgendadas++;
-            if (dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) mesesContadores[dataMaint.getMonth()]++;
+            if (dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) {
+                mesesContadores[dataMaint.getMonth()]++;
+            }
         }
 
-        // Filtro de aba
-        if (!item.lastDate && currentFilter !== 'equipamentos') return;
-        if (currentFilter === 'pending'      && (item.status !== 'Agendada' || estaAtrasada)) return;
-        if (currentFilter === 'atrasadas'    && !estaAtrasada) return;
-        if (currentFilter === 'done'         && item.status !== 'Realizada') return;
-        if (currentFilter === 'all'          && !item.lastDate) return;
+        // 🔥 FILTROS - APENAS 4
+        let passaFiltro = false;
+        switch(currentFilter) {
+            case 'agendadas':
+                passaFiltro = (item.status === 'Agendada' || item.status === 'Aguardando') && !estaAtrasada && item.lastDate;
+                break;
+            case 'concluidas':
+                passaFiltro = item.status === 'Realizada';
+                break;
+            case 'atrasadas':
+                passaFiltro = estaAtrasada && item.status !== 'Realizada';
+                break;
+            case 'todos':
+                passaFiltro = true;
+                break;
+            default:
+                passaFiltro = true;
+        }
+
+        // Se não passar no filtro, pula
+        if (!passaFiltro) return;
 
         // Busca por texto
         if (searchTerm) {
@@ -979,11 +990,20 @@ function renderSistemaGeral() {
 
         // Badge e estilo
         let bClass = 'badge-agendada', bText = 'Agendada';
-        if      (item.status === 'Realizada') { bClass = 'badge-realizada'; bText = 'Realizada'; }
-        else if (estaAtrasada)                 { bClass = 'badge-atrasada';  bText = 'Atrasada'; }
-        else if (!item.lastDate)               { bClass = 'badge-semdata';   bText = 'Sem data'; }
+        if (item.status === 'Realizada') { 
+            bClass = 'badge-realizada'; 
+            bText = 'Realizada'; 
+        } else if (estaAtrasada) { 
+            bClass = 'badge-atrasada';  
+            bText = 'Atrasada'; 
+        } else if (!item.lastDate) { 
+            bClass = 'badge-semdata';   
+            bText = 'Sem data'; 
+        }
 
         const dataBR = item.lastDate ? formatDateBR(item.lastDate) : 'Não definida';
+        
+        // ✅ BOTÃO CONCLUIR - AGORA TAMBÉM APARECE NAS ATRASADAS
         const botaoConcluir = (item.status !== 'Realizada' && item.lastDate)
             ? `<button class="btn btn-success btn-sm btn-icon" title="Marcar como concluída" onclick="darBaixaRegistro(${item.rowId})">✓</button>` : '';
 
@@ -1033,7 +1053,7 @@ function renderSistemaGeral() {
     document.getElementById('cardRealizadas').innerText = cRealizadas;
     document.getElementById('cardAtrasadas').innerText  = cAtrasadas;
     document.getElementById('cardAgendadas').innerText  = cAgendadas;
-    document.getElementById('cardTotalGeral').innerText = records.length;
+    document.getElementById('cardTotalGeral').innerText = activeRecords.length;
 
     // Empty state
     emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
