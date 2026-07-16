@@ -86,10 +86,13 @@
             position: fixed; inset: 0;
             background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
             display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;
+            overflow-y: auto;
         }
         .login-card {
             background: white; padding: 44px 32px; border-radius: 28px;
             width: 100%; max-width: 400px; box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+            max-height: 95vh;
+            overflow-y: auto;
         }
         .login-logo-fallback {
             font-size: 2rem; width: 72px; height: 72px; margin: 0 auto 20px;
@@ -149,6 +152,15 @@
             border-radius: var(--radius-sm);
         }
         .btn-logout:hover { background: #b91c1c; }
+        .btn-link {
+            background: none;
+            color: var(--primary);
+            padding: 8px;
+            font-size: 0.85rem;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        .btn-link:hover { text-decoration: underline; background: none; }
 
         #sistemaConteudo { display: none; }
 
@@ -157,7 +169,7 @@
             .desktop-layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; max-width: 1440px; margin: 0 auto; }
             .bottom-nav { display: none !important; }
             .pc-sidebar { display: flex !important; }
-            .mobile-filters { display: block !important; } /* ALTERADO: mostra os filtros no PC */
+            .mobile-filters { display: block !important; }
             .mobile-logout { display: none !important; }
         }
         @media (max-width: 1023px) {
@@ -489,6 +501,36 @@
 
         .fade-in { animation: fadeIn 0.25s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Estilos para a tela de usuários */
+        .user-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+        }
+        .user-item:last-child { border-bottom: none; }
+        .user-info { display: flex; flex-direction: column; gap: 2px; }
+        .user-name { font-weight: 700; font-size: 0.95rem; color: var(--dark); }
+        .user-role { font-size: 0.78rem; color: var(--muted); }
+        .user-actions { display: flex; gap: 6px; }
+        .user-list-container { max-height: 300px; overflow-y: auto; }
+        
+        .divider { 
+            border: none; border-top: 1px solid var(--border); 
+            margin: 16px 0; 
+        }
+        
+        .login-link {
+            text-align: center; margin-top: 16px;
+        }
+        .login-link a {
+            color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; cursor: pointer;
+        }
+        .login-link a:hover { text-decoration: underline; }
+        
+        .hidden { display: none; }
+        
+        .admin-only { display: none; }
+        .admin-only.visible { display: flex; }
     </style>
 </head>
 <body>
@@ -511,18 +553,51 @@
         <h2>Manutenção de Ar Condicionado</h2>
         <p class="subtitle">Sistema de Gestão Técnica</p>
 
-        <div class="form-group">
-            <label>Usuário</label>
-            <input type="text" id="loginUser" placeholder="Digite seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')autenticarSistema()">
-        </div>
-        <div class="form-group" style="margin-bottom: 24px;">
-            <label>Senha</label>
-            <div class="password-wrapper">
-                <input type="password" id="loginPass" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')autenticarSistema()">
-                <button type="button" class="toggle-password" onclick="togglePasswordVisibility()" title="Mostrar/ocultar senha">👁️</button>
+        <!-- Tela de Login -->
+        <div id="loginForm">
+            <div class="form-group">
+                <label>Usuário</label>
+                <input type="text" id="loginUser" placeholder="Digite seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')autenticarSistema()">
+            </div>
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label>Senha</label>
+                <div class="password-wrapper">
+                    <input type="password" id="loginPass" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')autenticarSistema()">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()" title="Mostrar/ocultar senha">👁️</button>
+                </div>
+            </div>
+            <button onclick="autenticarSistema()" id="btnLogin" class="btn btn-primary">Entrar no Sistema</button>
+            <div class="login-link">
+                <a onclick="mostrarCadastroUsuario()">🔐 Criar nova conta</a>
             </div>
         </div>
-        <button onclick="autenticarSistema()" id="btnLogin" class="btn btn-primary">Entrar no Sistema</button>
+
+        <!-- Tela de Cadastro de Usuário -->
+        <div id="cadastroForm" class="hidden">
+            <h2 style="font-size: 1rem; margin-bottom: 16px;">📝 Criar Nova Conta</h2>
+            <div class="form-group">
+                <label>Novo Usuário</label>
+                <input type="text" id="newUser" placeholder="Escolha um nome de usuário" required>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <div class="password-wrapper">
+                    <input type="password" id="newPass" placeholder="Crie uma senha" required>
+                    <button type="button" class="toggle-password" onclick="toggleNewPasswordVisibility()" title="Mostrar/ocultar senha">👁️</button>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Confirmar Senha</label>
+                <div class="password-wrapper">
+                    <input type="password" id="newPassConfirm" placeholder="Confirme a senha" required>
+                    <button type="button" class="toggle-password" onclick="toggleNewPasswordConfirmVisibility()" title="Mostrar/ocultar senha">👁️</button>
+                </div>
+            </div>
+            <button onclick="cadastrarUsuario()" id="btnCadastrar" class="btn btn-primary">Criar Conta</button>
+            <div class="login-link">
+                <a onclick="mostrarLogin()">← Voltar ao login</a>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -550,6 +625,10 @@
         <div class="sidebar-section-label" style="margin-top:12px;">Configurações</div>
         <button class="pc-nav-btn" id="pcNavConfig" onclick="navegarApp('Config')">
             <span class="nav-icon">🔧</span> Tipos de Serviço
+        </button>
+        <!-- Botão Usuários - visível apenas para admin -->
+        <button class="pc-nav-btn admin-only" id="pcNavUsuarios" onclick="navegarApp('Usuarios')">
+            <span class="nav-icon">👥</span> Usuários
         </button>
 
         <div class="sidebar-spacer"></div>
@@ -759,6 +838,42 @@
             <div class="config-grid" id="pcServicesGrid"></div>
         </div>
 
+        <!-- ── TELA USUÁRIOS (APENAS ADMIN) ── -->
+        <div id="telaUsuarios" class="tela">
+            <div class="form-card" style="max-width: 100%;">
+                <h2>👥 Gerenciar Usuários</h2>
+                <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 20px;">
+                    Gerencie os usuários que têm acesso ao sistema.
+                </p>
+
+                <!-- Formulário para adicionar usuário -->
+                <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Novo Usuário</label>
+                            <input type="text" id="adminNewUser" placeholder="Nome de usuário" style="padding: 10px 14px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Senha</label>
+                            <input type="password" id="adminNewPass" placeholder="Senha" style="padding: 10px 14px;">
+                        </div>
+                        <button onclick="adminCadastrarUsuario()" class="btn btn-primary" style="padding: 10px 20px; width: auto; min-width: 120px; height: 46px;">
+                            ➕ Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de usuários -->
+                <div class="user-list-container" id="userListContainer">
+                    <div id="userList">
+                        <div style="text-align: center; padding: 20px; color: var(--muted);">
+                            Carregando usuários...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 </div>
 
@@ -773,9 +888,18 @@
     <button class="nav-item" id="btnNavConfig" onclick="navegarApp('Config')">
         <span class="nav-icon">🔧</span> Tipos
     </button>
+    <!-- Botão Usuários - visível apenas para admin -->
+    <button class="nav-item admin-only" id="btnNavUsuarios" onclick="navegarApp('Usuarios')">
+        <span class="nav-icon">👥</span> Usuários
+    </button>
 </nav>
 
 <script>
+// ══════════════════════════════════════════════
+// VARIÁVEL GLOBAL - ADMIN
+// ══════════════════════════════════════════════
+let isAdmin = false;
+
 // ══════════════════════════════════════════════
 // PWA: MANIFESTO + SERVICE WORKER
 // ══════════════════════════════════════════════
@@ -866,7 +990,295 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpcMEoZbmWd2g7Idua9
 let records = [];
 let currentFilter = 'agendadas';
 let servicesData = { Preventiva: [], Corretiva: [] };
+let usuarios = [];
 const nomesMeses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+
+// ══════════════════════════════════════════════
+// GERENCIAMENTO DE USUÁRIOS
+// ══════════════════════════════════════════════
+
+// Alternar entre login e cadastro
+function mostrarCadastroUsuario() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('cadastroForm').classList.remove('hidden');
+}
+
+function mostrarLogin() {
+    document.getElementById('cadastroForm').classList.add('hidden');
+    document.getElementById('loginForm').classList.remove('hidden');
+}
+
+function toggleNewPasswordVisibility() {
+    const input = document.getElementById('newPass');
+    const btn = document.querySelector('#cadastroForm .password-wrapper .toggle-password');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.innerText = input.type === 'password' ? '👁️' : '🙈';
+}
+
+function toggleNewPasswordConfirmVisibility() {
+    const input = document.getElementById('newPassConfirm');
+    const btn = document.querySelectorAll('#cadastroForm .password-wrapper .toggle-password')[1];
+    if (btn) {
+        input.type = input.type === 'password' ? 'text' : 'password';
+        btn.innerText = input.type === 'password' ? '👁️' : '🙈';
+    }
+}
+
+// Função para gerenciar visibilidade dos elementos de admin
+function gerenciarVisibilidadeAdmin() {
+    const elementosAdmin = document.querySelectorAll('.admin-only');
+    
+    if (isAdmin) {
+        // Mostra elementos de admin
+        elementosAdmin.forEach(el => {
+            el.style.display = '';
+            el.classList.add('visible');
+        });
+    } else {
+        // Esconde elementos de admin
+        elementosAdmin.forEach(el => {
+            el.style.display = 'none';
+            el.classList.remove('visible');
+        });
+    }
+}
+
+// Carregar lista de usuários (apenas admin)
+async function carregarUsuarios() {
+    // Só carrega se for admin
+    if (!isAdmin) {
+        const container = document.getElementById('userList');
+        if (container) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: var(--muted);">
+                    🔒 Apenas administradores podem ver esta lista.
+                </div>
+            `;
+        }
+        return;
+    }
+    
+    try {
+        const currentUser = localStorage.getItem('usuarioClima') || '';
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                action: "listUsers",
+                currentUser: currentUser
+            })
+        });
+        const data = await response.json();
+        if (data.result === "success") {
+            usuarios = data.users || [];
+            renderizarUsuarios();
+        } else {
+            showToast(data.error || 'Erro ao carregar usuários.', 'error');
+        }
+    } catch (error) {
+        console.error('Erro ao carregar usuários:', error);
+        showToast('Erro de conexão ao carregar usuários.', 'error');
+    }
+}
+
+// Renderizar lista de usuários
+function renderizarUsuarios() {
+    const container = document.getElementById('userList');
+    if (!container) return;
+
+    if (!isAdmin) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: var(--muted);">
+                🔒 Apenas administradores podem ver esta lista.
+            </div>
+        `;
+        return;
+    }
+
+    if (usuarios.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: var(--muted);">
+                Nenhum usuário cadastrado.
+            </div>
+        `;
+        return;
+    }
+
+    const usuarioAtual = localStorage.getItem('usuarioClima') || '';
+    let html = '';
+    usuarios.forEach((user, index) => {
+        const isCurrentUser = user.username === usuarioAtual;
+        const isAdminUser = user.isAdmin === true;
+        html += `
+            <div class="user-item">
+                <div class="user-info">
+                    <div class="user-name">${escapeHtml(user.username)} ${isCurrentUser ? '👑' : ''} ${isAdminUser ? '⭐ Admin' : ''}</div>
+                    <div class="user-role">${isCurrentUser ? 'Usuário atual' : ''}</div>
+                </div>
+                <div class="user-actions">
+                    ${!isCurrentUser ? `
+                        <button onclick="adminExcluirUsuario('${escapeHtml(user.username)}')" class="btn btn-danger btn-sm btn-icon" title="Excluir usuário">🗑️</button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// Cadastrar usuário pela tela de login
+async function cadastrarUsuario() {
+    const username = document.getElementById('newUser').value.trim();
+    const password = document.getElementById('newPass').value.trim();
+    const confirm = document.getElementById('newPassConfirm').value.trim();
+
+    if (!username || !password || !confirm) {
+        showToast('Preencha todos os campos.', 'warning');
+        return;
+    }
+
+    if (password.length < 4) {
+        showToast('A senha deve ter pelo menos 4 caracteres.', 'warning');
+        return;
+    }
+
+    if (password !== confirm) {
+        showToast('As senhas não coincidem.', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btnCadastrar');
+    btn.innerText = 'CADASTRANDO...';
+    btn.disabled = true;
+    showLoader('Criando conta...');
+
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: "register",
+                username: username,
+                password: password,
+                role: "",
+                currentUser: username // para criar a conta, o próprio usuário é o currentUser
+            })
+        });
+        const data = await response.json();
+
+        if (data.result === "success") {
+            showToast('Conta criada com sucesso! Faça login.', 'success');
+            document.getElementById('newUser').value = '';
+            document.getElementById('newPass').value = '';
+            document.getElementById('newPassConfirm').value = '';
+            mostrarLogin();
+            // Recarregar lista de usuários se estiver logado
+            if (document.getElementById('sistemaConteudo').style.display === 'grid') {
+                carregarUsuarios();
+            }
+        } else {
+            showToast(data.error || 'Erro ao criar conta.', 'error');
+        }
+    } catch (error) {
+        showToast('Erro de conexão.', 'error');
+    } finally {
+        btn.innerText = 'Criar Conta';
+        btn.disabled = false;
+        hideLoader();
+    }
+}
+
+// Cadastrar usuário pela tela de administração (apenas admin)
+async function adminCadastrarUsuario() {
+    // Verifica se é admin
+    if (!isAdmin) {
+        showToast('Apenas administradores podem cadastrar usuários.', 'error');
+        return;
+    }
+    
+    const username = document.getElementById('adminNewUser').value.trim();
+    const password = document.getElementById('adminNewPass').value.trim();
+
+    if (!username || !password) {
+        showToast('Preencha usuário e senha.', 'warning');
+        return;
+    }
+
+    if (password.length < 4) {
+        showToast('A senha deve ter pelo menos 4 caracteres.', 'warning');
+        return;
+    }
+
+    const btn = event?.target || document.querySelector('#telaUsuarios .btn-primary');
+    const originalText = btn.innerText;
+    btn.innerText = 'CADASTRANDO...';
+    btn.disabled = true;
+    showLoader('Cadastrando usuário...');
+
+    try {
+        const currentUser = localStorage.getItem('usuarioClima') || '';
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: "register",
+                username: username,
+                password: password,
+                role: "",
+                currentUser: currentUser
+            })
+        });
+        const data = await response.json();
+
+        if (data.result === "success") {
+            showToast('Usuário cadastrado com sucesso!', 'success');
+            document.getElementById('adminNewUser').value = '';
+            document.getElementById('adminNewPass').value = '';
+            await carregarUsuarios();
+        } else {
+            showToast(data.error || 'Erro ao cadastrar usuário.', 'error');
+        }
+    } catch (error) {
+        showToast('Erro de conexão.', 'error');
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+        hideLoader();
+    }
+}
+
+// Excluir usuário pela tela de administração (apenas admin)
+async function adminExcluirUsuario(username) {
+    // Verifica se é admin
+    if (!isAdmin) {
+        showToast('Apenas administradores podem excluir usuários.', 'error');
+        return;
+    }
+    
+    if (!confirm(`Tem certeza que deseja excluir o usuário "${username}"?`)) return;
+
+    showLoader('Excluindo usuário...');
+    try {
+        const currentUser = localStorage.getItem('usuarioClima') || '';
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: "deleteUser",
+                username: username,
+                currentUser: currentUser
+            })
+        });
+        const data = await response.json();
+
+        if (data.result === "success") {
+            showToast('Usuário excluído com sucesso!', 'warning');
+            await carregarUsuarios();
+        } else {
+            showToast(data.error || 'Erro ao excluir usuário.', 'error');
+        }
+    } catch (error) {
+        showToast('Erro de conexão.', 'error');
+    } finally {
+        hideLoader();
+    }
+}
 
 // ══════════════════════════════════════════════
 // INICIALIZAÇÃO
@@ -875,8 +1287,15 @@ window.addEventListener('load', function() {
     const hoje = new Date();
     document.getElementById('txtDataHoje').innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
     document.getElementById('anoAtual').innerText = hoje.getFullYear();
+    
+    // Verifica se há usuário logado
     const loginSalvo = sessionStorage.getItem('usuarioClima') || localStorage.getItem('usuarioClima');
-    if (loginSalvo) logarSucesso(loginSalvo, true);
+    const adminSalvo = localStorage.getItem('isAdmin') === 'true';
+    
+    if (loginSalvo) {
+        isAdmin = adminSalvo;
+        logarSucesso(loginSalvo, true);
+    }
 });
 
 // ══════════════════════════════════════════════
@@ -884,7 +1303,7 @@ window.addEventListener('load', function() {
 // ══════════════════════════════════════════════
 function togglePasswordVisibility() {
     const input = document.getElementById('loginPass');
-    const btn = document.querySelector('.toggle-password');
+    const btn = document.querySelector('#loginForm .password-wrapper .toggle-password');
     input.type = input.type === 'password' ? 'text' : 'password';
     btn.innerText = input.type === 'password' ? '👁️' : '🙈';
 }
@@ -898,10 +1317,20 @@ async function autenticarSistema() {
     btn.innerText = 'VERIFICANDO...'; btn.disabled = true;
     showLoader('Autenticando...');
     try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "login", username: user, password: pass }) });
+        const r = await fetch(SCRIPT_URL, { 
+            method: 'POST', 
+            body: JSON.stringify({ 
+                action: "login", 
+                username: user, 
+                password: pass 
+            }) 
+        });
         const data = await r.json();
         if (data.result === "success") {
             localStorage.setItem('usuarioClima', data.user);
+            // Guarda se é admin
+            isAdmin = data.isAdmin === true;
+            localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
             logarSucesso(data.user, false);
         } else {
             showToast('Usuário ou senha incorretos.', 'error');
@@ -918,14 +1347,20 @@ function logarSucesso(user, silencioso = false) {
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('sistemaConteudo').style.display = 'grid';
     document.getElementById('txtOla').innerText = `Olá, ${user} 🔧`;
-    document.querySelector('.btn-logout').style.display = 'inline-flex';
+    document.querySelectorAll('.btn-logout').forEach(el => el.style.display = 'inline-flex');
     if (!silencioso) showToast(`Bem-vindo, ${user}!`, 'success');
+    
+    // Aplica visibilidade de admin
+    gerenciarVisibilidadeAdmin();
+    
     loadDataFromSheets();
+    carregarUsuarios();
 }
 
 function efetuarLogout() {
     localStorage.clear();
     sessionStorage.clear();
+    isAdmin = false;
     window.location.reload();
 }
 
@@ -1195,6 +1630,11 @@ function navegarApp(telaId) {
     document.getElementById(`tela${telaId}`)?.classList.add('active');
     document.getElementById(`pcNav${telaId}`)?.classList.add('active');
     document.getElementById(`btnNav${telaId}`)?.classList.add('active');
+    
+    // Recarregar lista de usuários quando acessar a tela
+    if (telaId === 'Usuarios') {
+        carregarUsuarios();
+    }
 }
 
 // ══════════════════════════════════════════════
@@ -1396,4 +1836,4 @@ function imprimirPDF() {
 }
 </script>
 </body>
-    </html>
+</html>
