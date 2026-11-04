@@ -368,14 +368,30 @@
         .filter-btn.active { background: var(--dark); color: white; border-color: var(--dark); }
         .filter-btn.danger.active { background: var(--danger); border-color: var(--danger); }
 
+        /* ============================================================
+           CORREÇÃO: exibição Desktop x Mobile
+           ------------------------------------------------------------
+           Regra antiga escondia os cards só a partir de 1024px de
+           largura, o que fazia com que, em janelas não maximizadas
+           no PC, TABELA + CARDS aparecessem ao mesmo tempo (duplicado).
+
+           Agora:
+           - Qualquer dispositivo com mouse (hover + pointer fine)
+             mostra APENAS a tabela.
+           - Dispositivos de toque mostram APENAS os cards.
+           - Impressão mostra APENAS a tabela.
+           ============================================================ */
         .desktop-table-wrapper {
             display: none; background: var(--bg-card); border-radius: var(--radius-lg);
             border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden;
         }
-        @media (min-width: 1024px) {
+        .mobile-cards-wrapper { display: flex; flex-direction: column; gap: 10px; }
+
+        @media (hover: hover) and (pointer: fine) {
             .desktop-table-wrapper { display: block; }
-            .mobile-cards-wrapper { display: none; }
+            .mobile-cards-wrapper   { display: none; }
         }
+
         table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
         th {
             background: var(--bg-app); color: var(--muted); font-weight: 700;
@@ -388,7 +404,6 @@
         .td-client strong { display: block; font-weight: 700; color: var(--dark); }
         .td-client span { font-size: 0.78rem; color: var(--muted); margin-top: 1px; display: block; }
 
-        .mobile-cards-wrapper { display: flex; flex-direction: column; gap: 10px; }
         .device-card {
             background: var(--bg-card); padding: 16px;
             border-radius: var(--radius-lg); box-shadow: var(--shadow);
@@ -502,7 +517,6 @@
         .fade-in { animation: fadeIn 0.25s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Estilos para a tela de usuários */
         .user-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 0; border-bottom: 1px solid var(--border);
@@ -1004,7 +1018,6 @@ const nomesMeses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out",
 // GERENCIAMENTO DE USUÁRIOS
 // ══════════════════════════════════════════════
 
-// Alternar entre login e cadastro
 function mostrarCadastroUsuario() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('cadastroForm').classList.remove('hidden');
@@ -1031,18 +1044,15 @@ function toggleNewPasswordConfirmVisibility() {
     }
 }
 
-// Função para gerenciar visibilidade dos elementos de admin
 function gerenciarVisibilidadeAdmin() {
     const elementosAdmin = document.querySelectorAll('.admin-only');
     
     if (isAdmin) {
-        // Mostra elementos de admin
         elementosAdmin.forEach(el => {
             el.style.display = '';
             el.classList.add('visible');
         });
     } else {
-        // Esconde elementos de admin
         elementosAdmin.forEach(el => {
             el.style.display = 'none';
             el.classList.remove('visible');
@@ -1050,9 +1060,7 @@ function gerenciarVisibilidadeAdmin() {
     }
 }
 
-// Carregar lista de usuários (apenas admin)
 async function carregarUsuarios() {
-    // Só carrega se for admin
     if (!isAdmin) {
         const container = document.getElementById('userList');
         if (container) {
@@ -1087,7 +1095,6 @@ async function carregarUsuarios() {
     }
 }
 
-// Renderizar lista de usuários
 function renderizarUsuarios() {
     const container = document.getElementById('userList');
     if (!container) return;
@@ -1133,9 +1140,7 @@ function renderizarUsuarios() {
     container.innerHTML = html;
 }
 
-// Cadastrar usuário pela tela de administração (apenas admin)
 async function adminCadastrarUsuario() {
-    // Verifica se é admin
     if (!isAdmin) {
         showToast('Apenas administradores podem cadastrar usuários.', 'error');
         return;
@@ -1192,9 +1197,7 @@ async function adminCadastrarUsuario() {
     }
 }
 
-// Excluir usuário pela tela de administração (apenas admin)
 async function adminExcluirUsuario(username) {
-    // Verifica se é admin
     if (!isAdmin) {
         showToast('Apenas administradores podem excluir usuários.', 'error');
         return;
@@ -1236,7 +1239,6 @@ window.addEventListener('load', function() {
     document.getElementById('txtDataHoje').innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
     document.getElementById('anoAtual').innerText = hoje.getFullYear();
     
-    // Verifica se há usuário logado
     const loginSalvo = sessionStorage.getItem('usuarioClima') || localStorage.getItem('usuarioClima');
     const adminSalvo = localStorage.getItem('isAdmin') === 'true';
     
@@ -1276,7 +1278,6 @@ async function autenticarSistema() {
         const data = await r.json();
         if (data.result === "success") {
             localStorage.setItem('usuarioClima', data.user);
-            // Guarda se é admin
             isAdmin = data.isAdmin === true;
             localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
             logarSucesso(data.user, false);
@@ -1298,7 +1299,6 @@ function logarSucesso(user, silencioso = false) {
     document.querySelectorAll('.btn-logout').forEach(el => el.style.display = 'inline-flex');
     if (!silencioso) showToast(`Bem-vindo, ${user}!`, 'success');
     
-    // Aplica visibilidade de admin
     gerenciarVisibilidadeAdmin();
     
     loadDataFromSheets();
@@ -1377,7 +1377,6 @@ function renderSistemaGeral() {
     mCards.innerHTML = '';
     pcTable.innerHTML = '';
 
-    // ── Popular dropdown com equipamentos únicos ──
     const equipSelect = document.getElementById('filterEquipamento');
     if (equipSelect) {
         const modelos = new Set();
@@ -1409,7 +1408,6 @@ function renderSistemaGeral() {
             dataMaint.setHours(0,0,0,0);
         }
 
-        // Contadores de métricas
         if (item.origem === 'historico') {
             cRealizadas++;
             if (dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) {
@@ -1429,7 +1427,6 @@ function renderSistemaGeral() {
             }
         }
 
-        // ── FILTROS ──
         let passaFiltro = false;
         switch(currentFilter) {
             case 'agendadas':
@@ -1449,10 +1446,8 @@ function renderSistemaGeral() {
         }
         if (!passaFiltro) return;
 
-        // ── Filtro por equipamento ──
         if (equipFilter && item.model !== equipFilter) return;
 
-        // ── Busca textual ──
         if (searchTerm) {
             const haystack = `${item.clientName} ${item.model} ${item.maintenanceType} ${item.serviceType}`.toLowerCase();
             if (!haystack.includes(searchTerm)) return;
@@ -1460,7 +1455,6 @@ function renderSistemaGeral() {
 
         visibleCount++;
 
-        // Badge e estilo
         let bClass = 'badge-agendada', bText = 'Agendada';
         if (item.origem === 'historico' || item.status === 'Realizada') {
             bClass = 'badge-realizada';
@@ -1477,7 +1471,6 @@ function renderSistemaGeral() {
         const botaoConcluir = (item.origem === 'principal' && item.status !== 'Realizada' && item.lastDate)
             ? `<button class="btn btn-success btn-sm btn-icon" title="Marcar como concluída" onclick="darBaixaRegistro(${item.rowId})">✓</button>` : '';
 
-        // Card Mobile
         const card = document.createElement('div');
         card.className = 'device-card fade-in';
         card.innerHTML = `
@@ -1500,7 +1493,6 @@ function renderSistemaGeral() {
         `;
         mCards.appendChild(card);
 
-        // Linha Desktop
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="td-client"><strong>${escapeHtml(item.clientName)}</strong><span>${escapeHtml(item.model)}</span></td>
@@ -1519,7 +1511,6 @@ function renderSistemaGeral() {
         pcTable.appendChild(tr);
     });
 
-    // Atualizar métricas
     document.getElementById('cardRealizadas').innerText = records.filter(r => r.origem === 'historico').length;
     document.getElementById('cardAtrasadas').innerText = records.filter(r => r.origem === 'principal' && isAtrasado(r)).length;
     document.getElementById('cardAgendadas').innerText = records.filter(r => r.origem === 'principal' && !isAtrasado(r)).length;
@@ -1579,7 +1570,6 @@ function navegarApp(telaId) {
     document.getElementById(`pcNav${telaId}`)?.classList.add('active');
     document.getElementById(`btnNav${telaId}`)?.classList.add('active');
     
-    // Recarregar lista de usuários quando acessar a tela
     if (telaId === 'Usuarios') {
         carregarUsuarios();
     }
