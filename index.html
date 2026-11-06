@@ -920,6 +920,7 @@
 // VARIÁVEL GLOBAL - ADMIN
 // ══════════════════════════════════════════════
 let isAdmin = false;
+const MESES_PROXIMO_AGENDAMENTO = 6;
 
 // ══════════════════════════════════════════════
 // PWA: MANIFESTO + SERVICE WORKER
@@ -1006,7 +1007,7 @@ function hideLoader() {
 // ══════════════════════════════════════════════
 // ESTADO GLOBAL
 // ══════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpcMEoZbmWd2g7Idua90aEF6ou7evplq_TAjXyd_3vyhMDUr3Cf0C4IWrI7Y4lDXFbRg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQxdgjQmrSIPVgWb8JtoH5UamLxBlpr2YbCIqVbZu_rG-bJLBHbAAyHartBuVx8E156w/exec";
 
 let records = [];
 let currentFilter = 'agendadas';
@@ -1638,7 +1639,7 @@ async function darBaixaRegistro(rowId) {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "conclude", rowId }) });
         const data = await r.json();
         if (data.result === "success") {
-            showToast('Serviço concluído! Novo agendamento criado para 7 meses.', 'success');
+            showToast(`Serviço concluído! Novo agendamento criado para ${MESES_PROXIMO_AGENDAMENTO} meses.`, 'success');
             await loadDataFromSheets();
         } else {
             showToast('Erro ao concluir serviço.', 'error');
