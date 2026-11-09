@@ -25,6 +25,8 @@
             --bg-app:         #f0f4f8;
             --bg-card:        #ffffff;
             --bg-input:       #f1f5f9;
+            --oleo:           #b45309;
+            --oleo-light:     #f59e0b;
             --radius-lg:      20px;
             --radius-md:      14px;
             --radius-sm:      8px;
@@ -91,8 +93,7 @@
         .login-card {
             background: white; padding: 44px 32px; border-radius: 28px;
             width: 100%; max-width: 400px; box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-            max-height: 95vh;
-            overflow-y: auto;
+            max-height: 95vh; overflow-y: auto;
         }
         .login-logo-fallback {
             font-size: 2rem; width: 72px; height: 72px; margin: 0 auto 20px;
@@ -107,13 +108,14 @@
             display: block; margin-bottom: 6px; font-weight: 700;
             font-size: 0.72rem; color: var(--slate); text-transform: uppercase; letter-spacing: 0.6px;
         }
-        input, select {
+        input, select, textarea {
             width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
             border-radius: var(--radius-md); background: var(--bg-input);
             font-size: 0.93rem; color: var(--dark); outline: none; font-weight: 500;
             transition: var(--transition); font-family: inherit;
         }
-        input:focus, select:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(3,105,161,0.1); }
+        textarea { resize: vertical; min-height: 70px; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(3,105,161,0.1); }
         input::placeholder { color: var(--muted); font-weight: 400; }
 
         .password-wrapper { position: relative; }
@@ -123,7 +125,6 @@
             background: none; border: none; cursor: pointer; font-size: 1.1rem;
             color: var(--muted); padding: 4px; line-height: 1;
         }
-        .toggle-password:hover { color: var(--dark); }
 
         .btn { 
             display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -142,25 +143,12 @@
         .btn-ghost:hover { background: var(--border); color: var(--dark); }
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { background: #047857; }
+        .btn-oleo { background: var(--oleo); color: white; }
+        .btn-oleo:hover { background: #92400e; }
         .btn-sm { padding: 7px 12px; font-size: 0.76rem; border-radius: var(--radius-sm); }
         .btn-icon { width: 36px; height: 36px; padding: 0; border-radius: var(--radius-sm); font-size: 0.9rem; }
-        .btn-logout {
-            background: var(--danger);
-            color: white;
-            padding: 8px 16px;
-            font-size: 0.78rem;
-            border-radius: var(--radius-sm);
-        }
+        .btn-logout { background: var(--danger); color: white; padding: 8px 16px; font-size: 0.78rem; border-radius: var(--radius-sm); }
         .btn-logout:hover { background: #b91c1c; }
-        .btn-link {
-            background: none;
-            color: var(--primary);
-            padding: 8px;
-            font-size: 0.85rem;
-            text-transform: none;
-            letter-spacing: 0;
-        }
-        .btn-link:hover { text-decoration: underline; background: none; }
 
         #sistemaConteudo { display: none; }
 
@@ -185,15 +173,8 @@
             border: 1px solid var(--border); height: fit-content;
             position: sticky; top: 28px; flex-direction: column; display: none;
         }
-        .sidebar-logo {
-            display: flex; align-items: center; gap: 10px;
-            padding: 0 6px 20px; border-bottom: 1px solid var(--border); margin-bottom: 16px;
-        }
-        .sidebar-logo .logo-icon {
-            width: 36px; height: 36px; border-radius: 10px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
-        }
+        .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 0 6px 20px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .sidebar-logo .logo-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
         .sidebar-logo span { font-weight: 800; font-size: 0.9rem; color: var(--dark); line-height: 1.2; }
         .sidebar-logo small { font-size: 0.7rem; color: var(--muted); display: block; }
         .sidebar-section-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; padding: 0 10px; margin-bottom: 6px; }
@@ -219,99 +200,29 @@
         }
         .app-bar .welcome-name { font-size: 1rem; font-weight: 800; color: var(--dark); }
         .app-bar .welcome-sub { font-size: 0.75rem; color: var(--primary); font-weight: 600; margin-top: 1px; }
-        .app-bar-right { 
-            text-align: right;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .app-bar-right { text-align: right; display: flex; align-items: center; gap: 10px; }
         .app-bar-date { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
         .app-bar-date strong { color: var(--dark); display: block; font-size: 0.85rem; }
 
-        .mobile-filters {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-        }
-        .mobile-filters-title {
-            font-size: 0.68rem;
-            font-weight: 700;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 10px;
-        }
-        .mobile-filters-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-        }
-        .mobile-filters-grid .filter-btn {
-            text-align: center;
-            padding: 8px 8px;
-            font-size: 0.72rem;
-            border-radius: var(--radius-sm);
-        }
+        .mobile-filters { background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 12px 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
+        .mobile-filters-title { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+        .mobile-filters-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .mobile-filters-grid .filter-btn { text-align: center; padding: 8px 8px; font-size: 0.72rem; border-radius: var(--radius-sm); }
 
         .search-bar-wrapper { position: relative; margin-bottom: 16px; }
         .search-bar-wrapper input { padding-left: 40px; background: var(--bg-card); border-color: var(--border); }
         .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: var(--muted); pointer-events: none; }
 
-        .list-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-        .list-toolbar .filter-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-            flex: 1;
-        }
-        #filterEquipamento {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            appearance: none;
-            -webkit-appearance: none;
-            padding: 8px 32px 8px 12px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background-color: var(--bg-card);
-            font-size: 0.8rem;
-            min-width: 160px;
-            cursor: pointer;
-            font-family: inherit;
-            color: var(--dark);
-        }
-        #filterEquipamento:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(3,105,161,0.1);
-        }
+        .list-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        .list-toolbar .filter-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; flex: 1; }
 
         .tela { display: none; width: 100%; }
         .tela.active { display: block; }
 
-        .metrics-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr);
-            gap: 10px; margin-bottom: 16px;
-        }
+        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
         @media (min-width: 640px) { .metrics-grid { grid-template-columns: repeat(4, 1fr); } }
 
-        .m-card {
-            background: var(--bg-card); padding: 14px 16px;
-            border-radius: var(--radius-lg); box-shadow: var(--shadow);
-            border: 1px solid var(--border); border-top-width: 3px;
-            transition: var(--transition); cursor: default;
-        }
+        .m-card { background: var(--bg-card); padding: 14px 16px; border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border); border-top-width: 3px; transition: var(--transition); }
         .m-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
         .m-card.m-realizadas { border-top-color: var(--success); }
         .m-card.m-atrasadas  { border-top-color: var(--danger); }
@@ -325,38 +236,8 @@
         .m-card.m-total      .m-value { color: var(--primary); }
         .m-trend { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
 
-        .months-container {
-            background: var(--bg-card); padding: 18px;
-            border-radius: var(--radius-lg); box-shadow: var(--shadow);
-            border: 1px solid var(--border); margin-bottom: 20px;
-        }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .section-title { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--slate); letter-spacing: 0.8px; }
-        .months-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-        }
-        @media (min-width: 640px)  { .months-grid { grid-template-columns: repeat(6, 1fr); } }
-        @media (min-width: 1200px) { .months-grid { grid-template-columns: repeat(12, 1fr); } }
-
-        .month-bar-card {
-            background: var(--bg-app); padding: 10px 6px;
-            border-radius: var(--radius-md); text-align: center;
-            border: 1.5px solid var(--border); transition: var(--transition);
-        }
-        .month-bar-card.has-items { border-color: var(--danger); background: #fef2f2; }
-        .month-bar-card.current-month { border-color: var(--primary); background: #e0f2fe; }
-        .month-bar-card.current-month.has-items { border-color: var(--danger); background: #fef2f2; }
-        .month-name { font-size: 0.62rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-        .month-counter { font-size: 1.1rem; font-weight: 900; color: var(--muted); margin-top: 2px; }
-        .month-bar-card.has-items .month-counter { color: var(--danger); }
-        .month-bar-card.current-month:not(.has-items) .month-name { color: var(--primary); }
-        .month-bar-card.current-month:not(.has-items) .month-counter { color: var(--primary); }
-
         .filter-wrapper { margin-bottom: 14px; }
-        .filter-scroller {
-            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
-            -webkit-overflow-scrolling: touch; scrollbar-width: none;
-        }
+        .filter-scroller { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         .filter-scroller::-webkit-scrollbar { display: none; }
         .filter-btn {
             background: var(--bg-card); color: var(--slate);
@@ -367,24 +248,9 @@
         .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
         .filter-btn.active { background: var(--dark); color: white; border-color: var(--dark); }
         .filter-btn.danger.active { background: var(--danger); border-color: var(--danger); }
+        .filter-btn.oleo.active { background: var(--oleo); border-color: var(--oleo); }
 
-        /* ============================================================
-           CORREÇÃO: exibição Desktop x Mobile
-           ------------------------------------------------------------
-           Regra antiga escondia os cards só a partir de 1024px de
-           largura, o que fazia com que, em janelas não maximizadas
-           no PC, TABELA + CARDS aparecessem ao mesmo tempo (duplicado).
-
-           Agora:
-           - Qualquer dispositivo com mouse (hover + pointer fine)
-             mostra APENAS a tabela.
-           - Dispositivos de toque mostram APENAS os cards.
-           - Impressão mostra APENAS a tabela.
-           ============================================================ */
-        .desktop-table-wrapper {
-            display: none; background: var(--bg-card); border-radius: var(--radius-lg);
-            border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden;
-        }
+        .desktop-table-wrapper { display: none; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
         .mobile-cards-wrapper { display: flex; flex-direction: column; gap: 10px; }
 
         @media (hover: hover) and (pointer: fine) {
@@ -393,11 +259,7 @@
         }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
-        th {
-            background: var(--bg-app); color: var(--muted); font-weight: 700;
-            text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.7px;
-            padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border);
-        }
+        th { background: var(--bg-app); color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.7px; padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border); }
         td { padding: 14px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover { background: var(--bg-app); }
@@ -410,69 +272,38 @@
             border: 1px solid var(--border); transition: var(--transition);
         }
         .device-card:hover { box-shadow: var(--shadow-hover); }
-        .device-card-header {
-            display: flex; justify-content: space-between; align-items: flex-start;
-            gap: 10px; margin-bottom: 12px;
-        }
+        .device-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
         .device-title { font-weight: 700; font-size: 0.95rem; color: var(--dark); }
         .device-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
-        .device-details {
-            font-size: 0.8rem; color: var(--slate); line-height: 1.6;
-            padding: 10px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 12px;
-        }
+        .device-details { font-size: 0.8rem; color: var(--slate); line-height: 1.6; padding: 10px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 12px; }
         .device-actions { display: flex; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
 
-        .badge {
-            padding: 4px 10px; border-radius: 30px; font-size: 0.68rem;
-            font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
-        }
+        .badge { padding: 4px 10px; border-radius: 30px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
         .badge-agendada  { background: #fffbeb; color: var(--warning); border: 1px solid #fde68a; }
         .badge-realizada { background: #ecfdf5; color: var(--success); border: 1px solid #a7f3d0; }
         .badge-atrasada  { background: #fef2f2; color: var(--danger);  border: 1px solid #fecaca; }
         .badge-semdata   { background: var(--bg-app); color: var(--muted); border: 1px solid var(--border); }
+        .badge-carro     { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .badge-moto      { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 
-        .empty-state {
-            text-align: center; padding: 56px 24px;
-            background: var(--bg-card); border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-        }
+        .empty-state { text-align: center; padding: 56px 24px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border); }
         .empty-icon { font-size: 3rem; margin-bottom: 12px; }
         .empty-title { font-weight: 800; color: var(--dark); margin-bottom: 6px; }
         .empty-sub { font-size: 0.85rem; color: var(--muted); }
 
-        .form-card {
-            background: var(--bg-card); padding: 24px;
-            border-radius: var(--radius-lg); box-shadow: var(--shadow);
-            max-width: 580px; border: 1px solid var(--border);
-        }
+        .form-card { background: var(--bg-card); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow); max-width: 640px; border: 1px solid var(--border); }
         .form-card h2 { font-size: 1.05rem; font-weight: 800; color: var(--dark); margin-bottom: 20px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+        .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+        @media (max-width: 480px) { .form-row, .form-row.three { grid-template-columns: 1fr; } }
         .form-actions { display: flex; gap: 10px; margin-top: 8px; }
         .form-actions .btn { flex: 1; }
 
-        .config-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
-        @media (min-width: 640px) { .config-grid { grid-template-columns: 1fr 1fr; } }
-        .config-card {
-            background: var(--bg-card); padding: 18px;
-            border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow);
+        .info-box {
+            background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-md);
+            padding: 12px 14px; font-size: 0.82rem; color: #92400e; margin-bottom: 16px;
+            display: flex; align-items: flex-start; gap: 8px;
         }
-        .config-card-title {
-            font-size: 0.78rem; font-weight: 800; text-transform: uppercase;
-            color: var(--primary); margin-bottom: 12px; letter-spacing: 0.5px;
-        }
-        .service-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 0; border-bottom: 1px dashed var(--border);
-            font-size: 0.85rem; color: var(--slate);
-        }
-        .service-item:last-child { border-bottom: none; }
-        .service-item button {
-            background: none; border: none; color: var(--danger); cursor: pointer;
-            font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; font-weight: 700;
-            transition: var(--transition);
-        }
-        .service-item button:hover { background: #fef2f2; }
 
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 64px;
@@ -483,10 +314,10 @@
         .nav-item {
             background: none; border: none; flex: 1; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--muted); font-size: 0.7rem; font-weight: 700; cursor: pointer;
+            color: var(--muted); font-size: 0.65rem; font-weight: 700; cursor: pointer;
             gap: 4px; transition: var(--transition); font-family: inherit; text-transform: uppercase;
         }
-        .nav-item .nav-icon { font-size: 1.2rem; }
+        .nav-item .nav-icon { font-size: 1.15rem; }
         .nav-item.active { color: var(--primary); }
         .nav-item.active .nav-icon { transform: scale(1.1); }
 
@@ -497,16 +328,15 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.2); cursor: pointer;
             align-items: center; gap: 8px; font-family: inherit;
         }
-        #pwaInstallBtn:hover { background: #1e293b; }
 
         .print-header { display: none; }
         @media print {
             @page { size: A4 portrait; margin: 15mm 12mm; }
             body { background: white; color: black; padding: 0 !important; font-size: 9pt; }
             #loginOverlay, .bottom-nav, .pc-sidebar, .filter-wrapper, .device-actions,
-            .app-bar, .months-container, .metrics-grid, .mobile-cards-wrapper,
+            .app-bar, .metrics-grid, .mobile-cards-wrapper, .mobile-filters,
             form, button, #pwaInstallBtn, .list-toolbar, .search-bar-wrapper, #toastContainer, #globalLoader { display: none !important; }
-            #sistemaConteudo, #telaDashboard, .desktop-table-wrapper { display: block !important; padding: 0 !important; border: none !important; box-shadow: none !important; }
+            #sistemaConteudo, .tela.active, .desktop-table-wrapper { display: block !important; padding: 0 !important; border: none !important; box-shadow: none !important; }
             .print-header { display: block !important; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #0f172a; }
             table { width: 100% !important; border-collapse: collapse !important; font-size: 8pt; }
             th, td { padding: 8px !important; border: 1px solid #cbd5e1 !important; }
@@ -517,32 +347,14 @@
         .fade-in { animation: fadeIn 0.25s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        .user-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid var(--border);
-        }
+        .user-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
         .user-item:last-child { border-bottom: none; }
         .user-info { display: flex; flex-direction: column; gap: 2px; }
         .user-name { font-weight: 700; font-size: 0.95rem; color: var(--dark); }
         .user-role { font-size: 0.78rem; color: var(--muted); }
         .user-actions { display: flex; gap: 6px; }
         .user-list-container { max-height: 300px; overflow-y: auto; }
-        
-        .divider { 
-            border: none; border-top: 1px solid var(--border); 
-            margin: 16px 0; 
-        }
-        
-        .login-link {
-            text-align: center; margin-top: 16px;
-        }
-        .login-link a {
-            color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; cursor: pointer;
-        }
-        .login-link a:hover { text-decoration: underline; }
-        
         .hidden { display: none; }
-        
         .admin-only { display: none; }
         .admin-only.visible { display: flex; }
     </style>
@@ -564,10 +376,9 @@
 <div id="loginOverlay">
     <div class="login-card">
         <div class="login-logo-fallback">❄️</div>
-        <h2>Manutenção de Ar Condicionado</h2>
-        <p class="subtitle">Sistema de Gestão Técnica</p>
+        <h2>Gestão de Manutenção</h2>
+        <p class="subtitle">Ar Condicionado & Troca de Óleo</p>
 
-        <!-- Tela de Login -->
         <div id="loginForm">
             <div class="form-group">
                 <label>Usuário</label>
@@ -581,36 +392,6 @@
                 </div>
             </div>
             <button onclick="autenticarSistema()" id="btnLogin" class="btn btn-primary">Entrar no Sistema</button>
-            <div class="login-link">
-                <!-- <a onclick="mostrarCadastroUsuario()">🔐 Criar nova conta</a> -->
-            </div>
-        </div>
-
-        <!-- Tela de Cadastro de Usuário -->
-        <div id="cadastroForm" class="hidden">
-            <h2 style="font-size: 1rem; margin-bottom: 16px;">📝 Criar Nova Conta</h2>
-            <div class="form-group">
-                <label>Novo Usuário</label>
-                <input type="text" id="newUser" placeholder="Escolha um nome de usuário" required>
-            </div>
-            <div class="form-group">
-                <label>Senha</label>
-                <div class="password-wrapper">
-                    <input type="password" id="newPass" placeholder="Crie uma senha" required>
-                    <button type="button" class="toggle-password" onclick="toggleNewPasswordVisibility()" title="Mostrar/ocultar senha">👁️</button>
-                </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label>Confirmar Senha</label>
-                <div class="password-wrapper">
-                    <input type="password" id="newPassConfirm" placeholder="Confirme a senha" required>
-                    <button type="button" class="toggle-password" onclick="toggleNewPasswordConfirmVisibility()" title="Mostrar/ocultar senha">👁️</button>
-                </div>
-            </div>
-            <button onclick="cadastrarUsuario()" id="btnCadastrar" class="btn btn-primary">Criar Conta</button>
-            <div class="login-link">
-                <a onclick="mostrarLogin()">← Voltar ao login</a>
-            </div>
         </div>
     </div>
 </div>
@@ -618,29 +399,34 @@
 <!-- ═══════════ SISTEMA ═══════════ -->
 <div id="sistemaConteudo" class="desktop-layout">
 
-    <!-- SIDEBAR -->
     <aside class="pc-sidebar">
         <div class="sidebar-logo">
             <div class="logo-icon">❄️</div>
             <div>
-                <span>ClimaApp</span>
-                <small>Gestão Técnica</small>
+                <span>GestãoApp</span>
+                <small>Clima & Óleo</small>
             </div>
         </div>
 
-        <div class="sidebar-section-label">Principal</div>
+        <div class="sidebar-section-label">Ar Condicionado</div>
         <button class="pc-nav-btn active" id="pcNavDashboard" onclick="navegarApp('Dashboard')">
-            <span class="nav-icon">📊</span> Painel Geral
+            <span class="nav-icon">📊</span> Painel AC
         </button>
         <button class="pc-nav-btn" id="pcNavNovo" onclick="navegarApp('Novo')">
             <span class="nav-icon">➕</span> Nova Manutenção
         </button>
-
-        <div class="sidebar-section-label" style="margin-top:12px;">Configurações</div>
         <button class="pc-nav-btn" id="pcNavConfig" onclick="navegarApp('Config')">
             <span class="nav-icon">🔧</span> Tipos de Serviço
         </button>
-        <!-- Botão Usuários - visível apenas para admin -->
+
+        <div class="sidebar-section-label" style="margin-top:12px;">Veículos</div>
+        <button class="pc-nav-btn" id="pcNavOleo" onclick="navegarApp('Oleo')">
+            <span class="nav-icon">🛢️</span> Painel Óleo
+        </button>
+        <button class="pc-nav-btn" id="pcNavOleoForm" onclick="navegarApp('OleoForm')">
+            <span class="nav-icon">🚗</span> Novo Veículo
+        </button>
+
         <button class="pc-nav-btn admin-only" id="pcNavUsuarios" onclick="navegarApp('Usuarios')">
             <span class="nav-icon">👥</span> Usuários
         </button>
@@ -651,14 +437,12 @@
         </button>
     </aside>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main style="width: 100%; min-width: 0;">
 
-        <!-- APP BAR -->
         <div class="app-bar">
             <div>
                 <div class="welcome-name" id="txtOla">Olá, Técnico 🔧</div>
-                <div class="welcome-sub">Gestão de Climatização</div>
+                <div class="welcome-sub">Gestão de Manutenções</div>
             </div>
             <div class="app-bar-right">
                 <div class="app-bar-date">
@@ -671,43 +455,15 @@
             </div>
         </div>
 
-        <!-- ── TELA DASHBOARD ── -->
+        <!-- ── TELA DASHBOARD AC ── -->
         <div id="telaDashboard" class="tela active">
-
-            <!-- Métricas -->
             <div class="metrics-grid">
-                <div class="m-card m-realizadas">
-                    <div class="m-label">✅ Realizadas</div>
-                    <div class="m-value" id="cardRealizadas">0</div>
-                    <div class="m-trend">manutenções concluídas</div>
-                </div>
-                <div class="m-card m-atrasadas">
-                    <div class="m-label">🚨 Em Atraso</div>
-                    <div class="m-value" id="cardAtrasadas">0</div>
-                    <div class="m-trend">requerem atenção</div>
-                </div>
-                <div class="m-card m-agendadas">
-                    <div class="m-label">📅 Agendadas</div>
-                    <div class="m-value" id="cardAgendadas">0</div>
-                    <div class="m-trend">próximas manutenções</div>
-                </div>
-                <div class="m-card m-total">
-                    <div class="m-label">📋 Total</div>
-                    <div class="m-value" id="cardTotalGeral">0</div>
-                    <div class="m-trend">equipamentos cadastrados</div>
-                </div>
+                <div class="m-card m-realizadas"><div class="m-label">✅ Realizadas</div><div class="m-value" id="cardRealizadas">0</div><div class="m-trend">manutenções concluídas</div></div>
+                <div class="m-card m-atrasadas"><div class="m-label">🚨 Em Atraso</div><div class="m-value" id="cardAtrasadas">0</div><div class="m-trend">requerem atenção</div></div>
+                <div class="m-card m-agendadas"><div class="m-label">📅 Agendadas</div><div class="m-value" id="cardAgendadas">0</div><div class="m-trend">próximas manutenções</div></div>
+                <div class="m-card m-total"><div class="m-label">📋 Total</div><div class="m-value" id="cardTotalGeral">0</div><div class="m-trend">equipamentos cadastrados</div></div>
             </div>
 
-            <!-- Cronograma Anual -->
-            <div class="months-container">
-                <div class="section-header">
-                    <span class="section-title">📆 Cronograma Anual</span>
-                    <span id="anoAtual" style="font-size:0.78rem; color:var(--muted); font-weight:700;"></span>
-                </div>
-                <div class="months-grid" id="monthsGridContainer"></div>
-            </div>
-
-            <!-- MOBILE FILTERS -->
             <div class="mobile-filters" id="mobileFilters">
                 <div class="mobile-filters-title">🔍 Filtros</div>
                 <div class="mobile-filters-grid">
@@ -718,50 +474,35 @@
                 </div>
             </div>
 
-            <!-- Busca -->
             <div class="search-bar-wrapper">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="searchInput" placeholder="Buscar por cliente, aparelho ou serviço..." oninput="renderSistemaGeral()">
             </div>
 
-            <!-- TOOLBAR com dropdown -->
             <div class="list-toolbar">
                 <div class="filter-group">
                     <select id="filterEquipamento" onchange="renderSistemaGeral()">
                         <option value="">📋 Todos os equipamentos</option>
                     </select>
                 </div>
-                <button onclick="imprimirPDF()" class="btn btn-dark btn-sm" style="flex-shrink:0;">📄 Relatório</button>
+                <button onclick="imprimirPDF('ac')" class="btn btn-dark btn-sm" style="flex-shrink:0;">📄 Relatório</button>
             </div>
 
-            <!-- Tabela Desktop -->
             <div class="desktop-table-wrapper">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Cliente / Local</th>
-                            <th>Aparelho / Modelo</th>
-                            <th>Tipo de Serviço</th>
-                            <th>Vencimento</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Cliente / Local</th><th>Aparelho / Modelo</th><th>Tipo de Serviço</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
                     <tbody id="desktopTableBody"></tbody>
                 </table>
             </div>
 
-            <!-- Cards Mobile -->
             <div class="mobile-cards-wrapper" id="mobileCardsContainer"></div>
 
-            <!-- Empty State -->
             <div id="emptyState" class="empty-state fade-in" style="display:none;">
                 <div class="empty-icon">🔍</div>
                 <div class="empty-title">Nenhum registro encontrado</div>
                 <div class="empty-sub">Tente outro filtro ou cadastre uma nova manutenção</div>
             </div>
 
-            <!-- Print Header -->
             <div class="print-header">
                 <h2 style="font-size:14pt; margin-bottom:8px;">Controle de Manutenção de Ar Condicionado</h2>
                 <table style="width:100%; border:none; font-size:9pt;">
@@ -773,24 +514,16 @@
             </div>
         </div>
 
-        <!-- ── TELA NOVO / EDIÇÃO ── -->
+        <!-- ── TELA NOVO / EDIÇÃO AC ── -->
         <div id="telaNovo" class="tela">
             <div class="form-card">
                 <h2 id="formTitle">➕ Nova Manutenção</h2>
                 <form id="maintenanceForm" onsubmit="salvarRegistro(event)">
                     <input type="hidden" id="editRowId" value="">
-
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Cliente / Localização</label>
-                            <input type="text" id="clientName" required placeholder="Ex: Auditório Principal">
-                        </div>
-                        <div class="form-group">
-                            <label>Aparelho / Modelo</label>
-                            <input type="text" id="model" required placeholder="Ex: Split Piso Teto 36k">
-                        </div>
+                        <div class="form-group"><label>Cliente / Localização</label><input type="text" id="clientName" required placeholder="Ex: Auditório Principal"></div>
+                        <div class="form-group"><label>Aparelho / Modelo</label><input type="text" id="model" required placeholder="Ex: Split Piso Teto 36k"></div>
                     </div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label>Tipo de Manutenção</label>
@@ -799,12 +532,8 @@
                                 <option value="Corretiva">Corretiva</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Ação Específica</label>
-                            <select id="serviceType" required></select>
-                        </div>
+                        <div class="form-group"><label>Ação Específica</label><select id="serviceType" required></select></div>
                     </div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label>Status</label>
@@ -814,12 +543,8 @@
                                 <option value="Sem Data">Sem data definida</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Data Programada</label>
-                            <input type="date" id="lastDate">
-                        </div>
+                        <div class="form-group"><label>Data Programada</label><input type="date" id="lastDate"></div>
                     </div>
-
                     <div class="form-actions">
                         <button type="submit" id="btnSalvar" class="btn btn-primary">💾 Salvar</button>
                         <button type="button" id="btnCancelarEdicao" class="btn btn-ghost" style="display:none;" onclick="cancelarEdicao()">Cancelar</button>
@@ -841,10 +566,7 @@
                                 <option value="Corretiva">Corretiva</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Descrição do Serviço</label>
-                            <input type="text" id="novoServicoNome" placeholder="Ex: Higienização química" required>
-                        </div>
+                        <div class="form-group"><label>Descrição do Serviço</label><input type="text" id="novoServicoNome" placeholder="Ex: Higienização química" required></div>
                     </div>
                     <button type="submit" class="btn btn-dark" style="width:100%;">Cadastrar Serviço</button>
                 </form>
@@ -852,25 +574,133 @@
             <div class="config-grid" id="pcServicesGrid"></div>
         </div>
 
-        <!-- ── TELA USUÁRIOS (APENAS ADMIN) ── -->
+        <!-- ═══════ TELA TROCA DE ÓLEO (DASHBOARD) ═══════ -->
+        <div id="telaOleo" class="tela">
+            <div class="info-box">
+                <span>💡</span>
+                <span>Ao <strong>concluir</strong> uma troca, o sistema cria automaticamente o próximo agendamento (data + KM).</span>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="m-card m-realizadas"><div class="m-label">✅ Trocas feitas</div><div class="m-value" id="oleoCardRealizadas">0</div><div class="m-trend">no histórico</div></div>
+                <div class="m-card m-atrasadas"><div class="m-label">🚨 Em Atraso</div><div class="m-value" id="oleoCardAtrasadas">0</div><div class="m-trend">por data ou KM</div></div>
+                <div class="m-card m-agendadas"><div class="m-label">📅 Agendadas</div><div class="m-value" id="oleoCardAgendadas">0</div><div class="m-trend">próximas trocas</div></div>
+                <div class="m-card m-total"><div class="m-label">🚗 Total Veículos</div><div class="m-value" id="oleoCardTotal">0</div><div class="m-trend">carros + motos</div></div>
+            </div>
+
+            <div class="mobile-filters">
+                <div class="mobile-filters-title">🔍 Filtros</div>
+                <div class="mobile-filters-grid">
+                    <button class="filter-btn oleo active" onclick="switchOleoFilter('agendadas', this)">📅 Agendadas</button>
+                    <button class="filter-btn" onclick="switchOleoFilter('concluidas', this)">✅ Concluídas</button>
+                    <button class="filter-btn danger" onclick="switchOleoFilter('atrasadas', this)">🚨 Atrasadas</button>
+                    <button class="filter-btn" onclick="switchOleoFilter('todos', this)">📋 Todos</button>
+                </div>
+            </div>
+
+            <div class="search-bar-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="oleoSearchInput" placeholder="Buscar por cliente, veículo ou placa..." oninput="renderOleo()">
+            </div>
+
+            <div class="list-toolbar">
+                <div class="filter-group">
+                    <select id="filterTipoVeiculo" onchange="renderOleo()">
+                        <option value="">🚗 Todos os veículos</option>
+                        <option value="Carro">🚗 Carro</option>
+                        <option value="Moto">🏍️ Moto</option>
+                    </select>
+                </div>
+                <button onclick="imprimirPDF('oleo')" class="btn btn-oleo btn-sm" style="flex-shrink:0;">📄 Relatório</button>
+            </div>
+
+            <div class="desktop-table-wrapper">
+                <table>
+                    <thead><tr><th>Cliente / Veículo</th><th>Placa</th><th>Óleo / Intervalo</th><th>Próxima Troca</th><th>Status</th><th>Ações</th></tr></thead>
+                    <tbody id="oleoDesktopTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="mobile-cards-wrapper" id="oleoMobileCards"></div>
+
+            <div id="oleoEmptyState" class="empty-state fade-in" style="display:none;">
+                <div class="empty-icon">🛢️</div>
+                <div class="empty-title">Nenhum veículo encontrado</div>
+                <div class="empty-sub">Cadastre um novo veículo para começar</div>
+            </div>
+
+            <div class="print-header">
+                <h2 style="font-size:14pt; margin-bottom:8px;">Controle de Troca de Óleo</h2>
+                <table style="width:100%; border:none; font-size:9pt;">
+                    <tr>
+                        <td style="border:none; padding:0;"><strong>Técnico:</strong> <span id="pUserOleo">-</span></td>
+                        <td style="border:none; padding:0;"><strong>Emissão:</strong> <span id="pDateOleo">-</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══════ TELA CADASTRO VEÍCULO ═══════ -->
+        <div id="telaOleoForm" class="tela">
+            <div class="form-card">
+                <h2 id="oleoFormTitle">🚗 Cadastrar Veículo</h2>
+                <form id="oleoForm" onsubmit="salvarOleoRegistro(event)">
+                    <input type="hidden" id="oleoEditRowId" value="">
+
+                    <div class="form-row">
+                        <div class="form-group"><label>Cliente / Proprietário</label><input type="text" id="oleoClient" required placeholder="Ex: João da Silva"></div>
+                        <div class="form-group"><label>Placa</label><input type="text" id="oleoPlaca" required placeholder="ABC-1D23" maxlength="10" style="text-transform:uppercase"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group"><label>Veículo (Marca/Modelo)</label><input type="text" id="oleoVeiculo" required placeholder="Ex: Honda Civic 2020"></div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select id="oleoTipoVeiculo" required onchange="aplicarIntervaloPadrao()">
+                                <option value="Carro">🚗 Carro</option>
+                                <option value="Moto">🏍️ Moto</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group"><label>Tipo de Óleo</label><input type="text" id="oleoTipoOleo" placeholder="Ex: 5W30 Sintético" required></div>
+                        <div class="form-group"><label>KM Atual</label><input type="number" id="oleoKmAtual" required min="0" placeholder="Ex: 45000"></div>
+                    </div>
+
+                    <div class="form-row three">
+                        <div class="form-group"><label>Última Troca (data)</label><input type="date" id="oleoUltimaTroca" required></div>
+                        <div class="form-group"><label>KM da Última Troca</label><input type="number" id="oleoKmUltimaTroca" required min="0" placeholder="Ex: 40000"></div>
+                        <div class="form-group"><label>Observações</label><input type="text" id="oleoObs" placeholder="Opcional"></div>
+                    </div>
+
+                   <div class="form-row">
+                    <div class="form-group"><label>Intervalo em KM</label><input type="number" id="oleoIntervaloKm" required min="100" value="5000"></div>
+                    <div class="form-group"><label>Intervalo em Meses</label><input type="number" id="oleoIntervaloMeses" required min="1" value="6"></div>
+                </div>
+
+                    <div class="info-box" id="oleoPreviewBox" style="background:#eff6ff; border-color:#bfdbfe; color:#1e40af;">
+                        <span>📅</span>
+                        <span id="oleoPreviewText">Preencha a última troca e os intervalos para ver o próximo agendamento.</span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="btnSalvarOleo" class="btn btn-oleo">💾 Salvar</button>
+                        <button type="button" id="btnCancelarOleo" class="btn btn-ghost" style="display:none;" onclick="cancelarEdicaoOleo()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ── TELA USUÁRIOS ── -->
         <div id="telaUsuarios" class="tela">
             <div class="form-card" style="max-width: 100%;">
                 <h2>👥 Gerenciar Usuários</h2>
-                <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 20px;">
-                    Gerencie os usuários que têm acesso ao sistema.
-                </p>
-
-                <!-- Formulário para adicionar usuário -->
+                <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 20px;">Gerencie os usuários que têm acesso ao sistema.</p>
                 <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px;">
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Novo Usuário</label>
-                            <input type="text" id="adminNewUser" placeholder="Nome de usuário" style="padding: 10px 14px;">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Senha</label>
-                            <input type="password" id="adminNewPass" placeholder="Senha" style="padding: 10px 14px;">
-                        </div>
+                        <div class="form-group" style="margin-bottom: 0;"><label>Novo Usuário</label><input type="text" id="adminNewUser" placeholder="Nome de usuário" style="padding: 10px 14px;"></div>
+                        <div class="form-group" style="margin-bottom: 0;"><label>Senha</label><input type="password" id="adminNewPass" placeholder="Senha" style="padding: 10px 14px;"></div>
                         <div class="form-group" style="margin-bottom: 0;">
                             <label>Tipo de Usuário</label>
                             <select id="adminNewRole" style="padding: 10px 14px; height: 46px;">
@@ -878,19 +708,11 @@
                                 <option value="admin">⭐ Administrador</option>
                             </select>
                         </div>
-                        <button onclick="adminCadastrarUsuario()" class="btn btn-primary" style="padding: 10px 20px; width: auto; min-width: 120px; height: 46px;">
-                            ➕ Adicionar
-                        </button>
+                        <button onclick="adminCadastrarUsuario()" class="btn btn-primary" style="padding: 10px 20px; width: auto; min-width: 120px; height: 46px;">➕ Adicionar</button>
                     </div>
                 </div>
-
-                <!-- Lista de usuários -->
                 <div class="user-list-container" id="userListContainer">
-                    <div id="userList">
-                        <div style="text-align: center; padding: 20px; color: var(--muted);">
-                            Carregando usuários...
-                        </div>
-                    </div>
+                    <div id="userList"><div style="text-align: center; padding: 20px; color: var(--muted);">Carregando usuários...</div></div>
                 </div>
             </div>
         </div>
@@ -898,41 +720,28 @@
     </main>
 </div>
 
-<!-- BOTTOM NAV (Mobile) -->
+<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-    <button class="nav-item active" id="btnNavDashboard" onclick="navegarApp('Dashboard')">
-        <span class="nav-icon">📊</span> Painel
-    </button>
-    <button class="nav-item" id="btnNavNovo" onclick="navegarApp('Novo')">
-        <span class="nav-icon">➕</span> Novo
-    </button>
-    <button class="nav-item" id="btnNavConfig" onclick="navegarApp('Config')">
-        <span class="nav-icon">🔧</span> Tipos
-    </button>
-    <!-- Botão Usuários - visível apenas para admin -->
-    <button class="nav-item admin-only" id="btnNavUsuarios" onclick="navegarApp('Usuarios')">
-        <span class="nav-icon">👥</span> Usuários
-    </button>
+    <button class="nav-item active" id="btnNavDashboard" onclick="navegarApp('Dashboard')"><span class="nav-icon">📊</span> Painel</button>
+    <button class="nav-item" id="btnNavOleo" onclick="navegarApp('Oleo')"><span class="nav-icon">🛢️</span> Óleo</button>
+    <button class="nav-item" id="btnNavOleoForm" onclick="navegarApp('OleoForm')"><span class="nav-icon">🚗</span> Veículo</button>
+    <button class="nav-item" id="btnNavConfig" onclick="navegarApp('Config')"><span class="nav-icon">🔧</span> Tipos</button>
+    <button class="nav-item admin-only" id="btnNavUsuarios" onclick="navegarApp('Usuarios')"><span class="nav-icon">👥</span> Usuários</button>
 </nav>
 
 <script>
 // ══════════════════════════════════════════════
-// VARIÁVEL GLOBAL - ADMIN
+// GLOBAIS
 // ══════════════════════════════════════════════
 let isAdmin = false;
 const MESES_PROXIMO_AGENDAMENTO = 6;
 
-// ══════════════════════════════════════════════
-// PWA: MANIFESTO + SERVICE WORKER
-// ══════════════════════════════════════════════
+// PWA
 const manifestJson = {
-    name: "Controle de Climatização",
-    short_name: "ClimaApp",
-    description: "Painel técnico de manutenção de ar condicionado.",
-    start_url: ".",
-    display: "standalone",
-    background_color: "#0f172a",
-    theme_color: "#0369a1",
+    name: "Gestão Clima & Óleo", short_name: "GestãoApp",
+    description: "Painel de manutenção de ar condicionado e troca de óleo.",
+    start_url: ".", display: "standalone",
+    background_color: "#0f172a", theme_color: "#0369a1",
     icons: [
         { src: "assets/icone_ar.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
         { src: "assets/icone_ar.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
@@ -942,43 +751,27 @@ document.getElementById('pwa-manifest').setAttribute('href', 'data:application/m
 
 if ('serviceWorker' in navigator) {
     const swBlob = new Blob([`
-        const CACHE_NAME = 'clima-app-v2';
+        const CACHE_NAME = 'gestao-app-v3';
         const STATIC = ['./', './index.html'];
-        self.addEventListener('install', e => {
-            e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(STATIC).catch(()=>{})));
-            self.skipWaiting();
-        });
-        self.addEventListener('activate', e => e.waitUntil(
-            caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k))))
-                .then(() => clients.claim())
-        ));
-        self.addEventListener('fetch', e => {
-            if (e.request.method !== 'GET') return;
-            e.respondWith(
-                fetch(e.request).catch(() => caches.match(e.request))
-            );
-        });
+        self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(STATIC).catch(()=>{}))); self.skipWaiting(); });
+        self.addEventListener('activate', e => e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(() => clients.claim())));
+        self.addEventListener('fetch', e => { if (e.request.method !== 'GET') return; e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });
     `], { type: 'application/javascript' });
     navigator.serviceWorker.register(URL.createObjectURL(swBlob));
 }
-
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPrompt = e;
+    e.preventDefault(); deferredPrompt = e;
     document.getElementById('pwaInstallBtn').style.display = 'inline-flex';
 });
 function triggerPwaInstall() {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(r => {
-        if (r.outcome === 'accepted') document.getElementById('pwaInstallBtn').style.display = 'none';
-        deferredPrompt = null;
-    });
+    deferredPrompt.userChoice.then(r => { if (r.outcome === 'accepted') document.getElementById('pwaInstallBtn').style.display = 'none'; deferredPrompt = null; });
 }
 
 // ══════════════════════════════════════════════
-// TOAST SYSTEM
+// TOAST / LOADER
 // ══════════════════════════════════════════════
 function showToast(msg, type = 'default', duration = 3500) {
     const icons = { success: '✅', error: '❌', warning: '⚠️', default: 'ℹ️' };
@@ -987,25 +780,13 @@ function showToast(msg, type = 'default', duration = 3500) {
     toast.className = `toast ${type}`;
     toast.innerHTML = `<span>${icons[type] || icons.default}</span><span>${msg}</span>`;
     container.appendChild(toast);
-    setTimeout(() => {
-        toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 300);
-    }, duration);
+    setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 300); }, duration);
 }
+function showLoader(text = 'Carregando...') { document.getElementById('loaderText').innerText = text; document.getElementById('globalLoader').classList.add('show'); }
+function hideLoader() { document.getElementById('globalLoader').classList.remove('show'); }
 
 // ══════════════════════════════════════════════
-// LOADER
-// ══════════════════════════════════════════════
-function showLoader(text = 'Carregando...') {
-    document.getElementById('loaderText').innerText = text;
-    document.getElementById('globalLoader').classList.add('show');
-}
-function hideLoader() {
-    document.getElementById('globalLoader').classList.remove('show');
-}
-
-// ══════════════════════════════════════════════
-// ESTADO GLOBAL
+// ESTADO
 // ══════════════════════════════════════════════
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQxdgjQmrSIPVgWb8JtoH5UamLxBlpr2YbCIqVbZu_rG-bJLBHbAAyHartBuVx8E156w/exec";
 
@@ -1013,224 +794,10 @@ let records = [];
 let currentFilter = 'agendadas';
 let servicesData = { Preventiva: [], Corretiva: [] };
 let usuarios = [];
-const nomesMeses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
-// ══════════════════════════════════════════════
-// GERENCIAMENTO DE USUÁRIOS
-// ══════════════════════════════════════════════
-
-function mostrarCadastroUsuario() {
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('cadastroForm').classList.remove('hidden');
-}
-
-function mostrarLogin() {
-    document.getElementById('cadastroForm').classList.add('hidden');
-    document.getElementById('loginForm').classList.remove('hidden');
-}
-
-function toggleNewPasswordVisibility() {
-    const input = document.getElementById('newPass');
-    const btn = document.querySelector('#cadastroForm .password-wrapper .toggle-password');
-    input.type = input.type === 'password' ? 'text' : 'password';
-    btn.innerText = input.type === 'password' ? '👁️' : '🙈';
-}
-
-function toggleNewPasswordConfirmVisibility() {
-    const input = document.getElementById('newPassConfirm');
-    const btn = document.querySelectorAll('#cadastroForm .password-wrapper .toggle-password')[1];
-    if (btn) {
-        input.type = input.type === 'password' ? 'text' : 'password';
-        btn.innerText = input.type === 'password' ? '👁️' : '🙈';
-    }
-}
-
-function gerenciarVisibilidadeAdmin() {
-    const elementosAdmin = document.querySelectorAll('.admin-only');
-    
-    if (isAdmin) {
-        elementosAdmin.forEach(el => {
-            el.style.display = '';
-            el.classList.add('visible');
-        });
-    } else {
-        elementosAdmin.forEach(el => {
-            el.style.display = 'none';
-            el.classList.remove('visible');
-        });
-    }
-}
-
-async function carregarUsuarios() {
-    if (!isAdmin) {
-        const container = document.getElementById('userList');
-        if (container) {
-            container.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: var(--muted);">
-                    🔒 Apenas administradores podem ver esta lista.
-                </div>
-            `;
-        }
-        return;
-    }
-    
-    try {
-        const currentUser = localStorage.getItem('usuarioClima') || '';
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                action: "listUsers",
-                currentUser: currentUser
-            })
-        });
-        const data = await response.json();
-        if (data.result === "success") {
-            usuarios = data.users || [];
-            renderizarUsuarios();
-        } else {
-            showToast(data.error || 'Erro ao carregar usuários.', 'error');
-        }
-    } catch (error) {
-        console.error('Erro ao carregar usuários:', error);
-        showToast('Erro de conexão ao carregar usuários.', 'error');
-    }
-}
-
-function renderizarUsuarios() {
-    const container = document.getElementById('userList');
-    if (!container) return;
-
-    if (!isAdmin) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 20px; color: var(--muted);">
-                🔒 Apenas administradores podem ver esta lista.
-            </div>
-        `;
-        return;
-    }
-
-    if (usuarios.length === 0) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 20px; color: var(--muted);">
-                Nenhum usuário cadastrado.
-            </div>
-        `;
-        return;
-    }
-
-    const usuarioAtual = localStorage.getItem('usuarioClima') || '';
-    let html = '';
-    usuarios.forEach((user, index) => {
-        const isCurrentUser = user.username === usuarioAtual;
-        const isAdminUser = user.isAdmin === true;
-        const roleLabel = isAdminUser ? '⭐ Administrador' : '👨‍🔧 Técnico';
-        html += `
-            <div class="user-item">
-                <div class="user-info">
-                    <div class="user-name">${escapeHtml(user.username)} ${isCurrentUser ? '👑' : ''}</div>
-                    <div class="user-role">${roleLabel} ${isCurrentUser ? '· Usuário atual' : ''}</div>
-                </div>
-                <div class="user-actions">
-                    ${!isCurrentUser ? `
-                        <button onclick="adminExcluirUsuario('${escapeHtml(user.username)}')" class="btn btn-danger btn-sm btn-icon" title="Excluir usuário">🗑️</button>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-async function adminCadastrarUsuario() {
-    if (!isAdmin) {
-        showToast('Apenas administradores podem cadastrar usuários.', 'error');
-        return;
-    }
-    
-    const username = document.getElementById('adminNewUser').value.trim();
-    const password = document.getElementById('adminNewPass').value.trim();
-    const role = document.getElementById('adminNewRole').value;
-
-    if (!username || !password) {
-        showToast('Preencha usuário e senha.', 'warning');
-        return;
-    }
-
-    if (password.length < 4) {
-        showToast('A senha deve ter pelo menos 4 caracteres.', 'warning');
-        return;
-    }
-
-    const btn = event?.target || document.querySelector('#telaUsuarios .btn-primary');
-    const originalText = btn.innerText;
-    btn.innerText = 'CADASTRANDO...';
-    btn.disabled = true;
-    showLoader('Cadastrando usuário...');
-
-    try {
-        const currentUser = localStorage.getItem('usuarioClima') || '';
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: "register",
-                username: username,
-                password: password,
-                role: role,
-                currentUser: currentUser
-            })
-        });
-        const data = await response.json();
-
-        if (data.result === "success") {
-            showToast(`Usuário cadastrado como ${role === 'admin' ? 'Administrador' : 'Técnico'}!`, 'success');
-            document.getElementById('adminNewUser').value = '';
-            document.getElementById('adminNewPass').value = '';
-            await carregarUsuarios();
-        } else {
-            showToast(data.error || 'Erro ao cadastrar usuário.', 'error');
-        }
-    } catch (error) {
-        showToast('Erro de conexão.', 'error');
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-        hideLoader();
-    }
-}
-
-async function adminExcluirUsuario(username) {
-    if (!isAdmin) {
-        showToast('Apenas administradores podem excluir usuários.', 'error');
-        return;
-    }
-    
-    if (!confirm(`Tem certeza que deseja excluir o usuário "${username}"?`)) return;
-
-    showLoader('Excluindo usuário...');
-    try {
-        const currentUser = localStorage.getItem('usuarioClima') || '';
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: "deleteUser",
-                username: username,
-                currentUser: currentUser
-            })
-        });
-        const data = await response.json();
-
-        if (data.result === "success") {
-            showToast('Usuário excluído com sucesso!', 'warning');
-            await carregarUsuarios();
-        } else {
-            showToast(data.error || 'Erro ao excluir usuário.', 'error');
-        }
-    } catch (error) {
-        showToast('Erro de conexão.', 'error');
-    } finally {
-        hideLoader();
-    }
-}
+// Estado óleo
+let oleoRecords = [];
+let currentOleoFilter = 'agendadas';
 
 // ══════════════════════════════════════════════
 // INICIALIZAÇÃO
@@ -1238,15 +805,9 @@ async function adminExcluirUsuario(username) {
 window.addEventListener('load', function() {
     const hoje = new Date();
     document.getElementById('txtDataHoje').innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
-    document.getElementById('anoAtual').innerText = hoje.getFullYear();
-    
     const loginSalvo = sessionStorage.getItem('usuarioClima') || localStorage.getItem('usuarioClima');
     const adminSalvo = localStorage.getItem('isAdmin') === 'true';
-    
-    if (loginSalvo) {
-        isAdmin = adminSalvo;
-        logarSucesso(loginSalvo, true);
-    }
+    if (loginSalvo) { isAdmin = adminSalvo; logarSucesso(loginSalvo, true); }
 });
 
 // ══════════════════════════════════════════════
@@ -1264,18 +825,10 @@ async function autenticarSistema() {
     const user = document.getElementById('loginUser').value.trim();
     const pass = document.getElementById('loginPass').value.trim();
     if (!user || !pass) { showToast('Preencha usuário e senha.', 'warning'); return; }
-
     btn.innerText = 'VERIFICANDO...'; btn.disabled = true;
     showLoader('Autenticando...');
     try {
-        const r = await fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            body: JSON.stringify({ 
-                action: "login", 
-                username: user, 
-                password: pass 
-            }) 
-        });
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "login", username: user, password: pass }) });
         const data = await r.json();
         if (data.result === "success") {
             localStorage.setItem('usuarioClima', data.user);
@@ -1285,12 +838,8 @@ async function autenticarSistema() {
         } else {
             showToast('Usuário ou senha incorretos.', 'error');
         }
-    } catch(e) {
-        showToast('Erro de conexão com o servidor.', 'error');
-    } finally {
-        btn.innerText = 'Entrar no Sistema'; btn.disabled = false;
-        hideLoader();
-    }
+    } catch(e) { showToast('Erro de conexão com o servidor.', 'error'); }
+    finally { btn.innerText = 'Entrar no Sistema'; btn.disabled = false; hideLoader(); }
 }
 
 function logarSucesso(user, silencioso = false) {
@@ -1299,18 +848,18 @@ function logarSucesso(user, silencioso = false) {
     document.getElementById('txtOla').innerText = `Olá, ${user} 🔧`;
     document.querySelectorAll('.btn-logout').forEach(el => el.style.display = 'inline-flex');
     if (!silencioso) showToast(`Bem-vindo, ${user}!`, 'success');
-    
     gerenciarVisibilidadeAdmin();
-    
     loadDataFromSheets();
     carregarUsuarios();
 }
 
-function efetuarLogout() {
-    localStorage.clear();
-    sessionStorage.clear();
-    isAdmin = false;
-    window.location.reload();
+function efetuarLogout() { localStorage.clear(); sessionStorage.clear(); isAdmin = false; window.location.reload(); }
+
+function gerenciarVisibilidadeAdmin() {
+    document.querySelectorAll('.admin-only').forEach(el => {
+        if (isAdmin) { el.style.display = ''; el.classList.add('visible'); }
+        else { el.style.display = 'none'; el.classList.remove('visible'); }
+    });
 }
 
 // ══════════════════════════════════════════════
@@ -1323,50 +872,39 @@ async function loadDataFromSheets() {
         const data = await response.json();
         if (data.services) servicesData = data.services;
         records = data.records || [];
+        oleoRecords = data.oleoRecords || [];
         updateServiceOptions();
         renderSistemaGeral();
+        renderOleo();
         renderConfiguracoes();
     } catch (error) {
         showToast('Erro ao carregar dados. Verifique a conexão.', 'error');
         console.error(error);
-    } finally {
-        hideLoader();
-    }
+    } finally { hideLoader(); }
 }
 
 // ══════════════════════════════════════════════
-// OPÇÕES DE SERVIÇO
+// AC — OPÇÕES DE SERVIÇO
 // ══════════════════════════════════════════════
 function updateServiceOptions() {
     const type = document.getElementById('maintenanceType').value;
     const serviceSelect = document.getElementById('serviceType');
     serviceSelect.innerHTML = '';
     const options = servicesData[type] || [];
-    if (options.length === 0) {
-        serviceSelect.innerHTML = '<option value="Geral">Geral</option>';
-    } else {
-        options.forEach(srv => {
-            const opt = document.createElement('option');
-            opt.text = opt.value = srv;
-            serviceSelect.appendChild(opt);
-        });
-    }
+    if (options.length === 0) { serviceSelect.innerHTML = '<option value="Geral">Geral</option>'; }
+    else { options.forEach(srv => { const opt = document.createElement('option'); opt.text = opt.value = srv; serviceSelect.appendChild(opt); }); }
 }
 
-// ══════════════════════════════════════════════
-// FUNÇÃO AUXILIAR - VERIFICAR ATRASO
-// ══════════════════════════════════════════════
 function isAtrasado(item) {
     if (item.origem !== 'principal' || item.status === 'Realizada' || !item.lastDate) return false;
     const hoje = new Date(); hoje.setHours(0,0,0,0);
     const [y, m, d] = item.lastDate.split('-').map(Number);
-    const dataMaint = new Date(y, m - 1, d);
-    dataMaint.setHours(0,0,0,0);
+    const dataMaint = new Date(y, m - 1, d); dataMaint.setHours(0,0,0,0);
     return hoje > dataMaint;
 }
 
 // ══════════════════════════════════════════════
-// RENDERIZAÇÃO PRINCIPAL
+// AC — RENDER
 // ══════════════════════════════════════════════
 function renderSistemaGeral() {
     const mCards = document.getElementById('mobileCardsContainer');
@@ -1374,112 +912,51 @@ function renderSistemaGeral() {
     const emptyState = document.getElementById('emptyState');
     const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
     const equipFilter = document.getElementById('filterEquipamento')?.value || '';
-
-    mCards.innerHTML = '';
-    pcTable.innerHTML = '';
+    mCards.innerHTML = ''; pcTable.innerHTML = '';
 
     const equipSelect = document.getElementById('filterEquipamento');
     if (equipSelect) {
         const modelos = new Set();
-        records.forEach(r => {
-            if (r.model && r.model.trim() !== '') modelos.add(r.model.trim());
-        });
+        records.forEach(r => { if (r.model && r.model.trim() !== '') modelos.add(r.model.trim()); });
         const currentVal = equipSelect.value;
         equipSelect.innerHTML = '<option value="">📋 Todos os equipamentos</option>';
-        Array.from(modelos).sort().forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m;
-            opt.textContent = m;
-            equipSelect.appendChild(opt);
-        });
+        Array.from(modelos).sort().forEach(m => { const opt = document.createElement('option'); opt.value = m; opt.textContent = m; equipSelect.appendChild(opt); });
         equipSelect.value = currentVal;
     }
 
-    let cRealizadas = 0, cAtrasadas = 0, cAgendadas = 0;
-    let mesesContadores = Array(12).fill(0);
-    const hoje = new Date(); hoje.setHours(0,0,0,0);
     let visibleCount = 0;
-
     records.forEach(item => {
         let estaAtrasada = isAtrasado(item);
-        let dataMaint = null;
-        if (item.lastDate) {
-            const [y, m, d] = item.lastDate.split('-').map(Number);
-            dataMaint = new Date(y, m - 1, d);
-            dataMaint.setHours(0,0,0,0);
-        }
-
-        if (item.origem === 'historico') {
-            cRealizadas++;
-            if (dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) {
-                mesesContadores[dataMaint.getMonth()]++;
-            }
-        } else if (item.origem === 'principal') {
-            if (estaAtrasada) {
-                cAtrasadas++;
-                if (dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) {
-                    mesesContadores[dataMaint.getMonth()]++;
-                }
-            } else {
-                cAgendadas++;
-                if (dataMaint && dataMaint.getFullYear() === hoje.getFullYear()) {
-                    mesesContadores[dataMaint.getMonth()]++;
-                }
-            }
-        }
-
         let passaFiltro = false;
         switch(currentFilter) {
-            case 'agendadas':
-                passaFiltro = item.origem === 'principal' && !estaAtrasada && item.status === 'Agendada';
-                break;
-            case 'concluidas':
-                passaFiltro = item.origem === 'historico';
-                break;
-            case 'atrasadas':
-                passaFiltro = item.origem === 'principal' && estaAtrasada;
-                break;
-            case 'todos':
-                passaFiltro = item.origem === 'principal';
-                break;
-            default:
-                passaFiltro = true;
+            case 'agendadas': passaFiltro = item.origem === 'principal' && !estaAtrasada && item.status === 'Agendada'; break;
+            case 'concluidas': passaFiltro = item.origem === 'historico'; break;
+            case 'atrasadas': passaFiltro = item.origem === 'principal' && estaAtrasada; break;
+            case 'todos': passaFiltro = item.origem === 'principal'; break;
+            default: passaFiltro = true;
         }
         if (!passaFiltro) return;
-
         if (equipFilter && item.model !== equipFilter) return;
-
         if (searchTerm) {
             const haystack = `${item.clientName} ${item.model} ${item.maintenanceType} ${item.serviceType}`.toLowerCase();
             if (!haystack.includes(searchTerm)) return;
         }
-
         visibleCount++;
 
         let bClass = 'badge-agendada', bText = 'Agendada';
-        if (item.origem === 'historico' || item.status === 'Realizada') {
-            bClass = 'badge-realizada';
-            bText = 'Realizada';
-        } else if (estaAtrasada) {
-            bClass = 'badge-atrasada';
-            bText = 'Atrasada';
-        } else if (!item.lastDate) {
-            bClass = 'badge-semdata';
-            bText = 'Sem data';
-        }
+        if (item.origem === 'historico' || item.status === 'Realizada') { bClass = 'badge-realizada'; bText = 'Realizada'; }
+        else if (estaAtrasada) { bClass = 'badge-atrasada'; bText = 'Atrasada'; }
+        else if (!item.lastDate) { bClass = 'badge-semdata'; bText = 'Sem data'; }
 
         const dataBR = item.lastDate ? formatDateBR(item.lastDate) : 'Não definida';
         const botaoConcluir = (item.origem === 'principal' && item.status !== 'Realizada' && item.lastDate)
-            ? `<button class="btn btn-success btn-sm btn-icon" title="Marcar como concluída" onclick="darBaixaRegistro(${item.rowId})">✓</button>` : '';
+            ? `<button class="btn btn-success btn-sm btn-icon" title="Concluir" onclick="darBaixaRegistro(${item.rowId})">✓</button>` : '';
 
         const card = document.createElement('div');
         card.className = 'device-card fade-in';
         card.innerHTML = `
             <div class="device-card-header">
-                <div>
-                    <div class="device-title">${escapeHtml(item.clientName)}</div>
-                    <div class="device-sub">${escapeHtml(item.model)}</div>
-                </div>
+                <div><div class="device-title">${escapeHtml(item.clientName)}</div><div class="device-sub">${escapeHtml(item.model)}</div></div>
                 <span class="badge ${bClass}">${bText}</span>
             </div>
             <div class="device-details">
@@ -1490,8 +967,7 @@ function renderSistemaGeral() {
                 ${botaoConcluir}
                 <button class="btn btn-ghost btn-sm btn-icon" title="Editar" onclick="prepararEdicao(${item.rowId})">📝</button>
                 <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="excluirRegistro(${item.rowId})">🗑️</button>
-            </div>
-        `;
+            </div>`;
         mCards.appendChild(card);
 
         const tr = document.createElement('tr');
@@ -1501,14 +977,11 @@ function renderSistemaGeral() {
             <td>${escapeHtml(item.maintenanceType)} · ${escapeHtml(item.serviceType || 'Geral')}</td>
             <td>${dataBR}</td>
             <td><span class="badge ${bClass}">${bText}</span></td>
-            <td>
-                <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                    ${botaoConcluir}
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Editar" onclick="prepararEdicao(${item.rowId})">📝</button>
-                    <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="excluirRegistro(${item.rowId})">🗑️</button>
-                </div>
-            </td>
-        `;
+            <td><div style="display:flex; gap:6px; flex-wrap:wrap;">
+                ${botaoConcluir}
+                <button class="btn btn-ghost btn-sm btn-icon" title="Editar" onclick="prepararEdicao(${item.rowId})">📝</button>
+                <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="excluirRegistro(${item.rowId})">🗑️</button>
+            </div></td>`;
         pcTable.appendChild(tr);
     });
 
@@ -1516,27 +989,11 @@ function renderSistemaGeral() {
     document.getElementById('cardAtrasadas').innerText = records.filter(r => r.origem === 'principal' && isAtrasado(r)).length;
     document.getElementById('cardAgendadas').innerText = records.filter(r => r.origem === 'principal' && !isAtrasado(r)).length;
     document.getElementById('cardTotalGeral').innerText = records.filter(r => r.origem === 'principal').length;
-
     emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
-    renderCronogramaAnual(mesesContadores);
-}
-
-function renderCronogramaAnual(contadores) {
-    const container = document.getElementById('monthsGridContainer');
-    container.innerHTML = '';
-    const mesAtual = new Date().getMonth();
-    nomesMeses.forEach((mes, idx) => {
-        const box = document.createElement('div');
-        const hasItems = contadores[idx] > 0;
-        const isCurrent = idx === mesAtual;
-        box.className = `month-bar-card${hasItems ? ' has-items' : ''}${isCurrent ? ' current-month' : ''}`;
-        box.innerHTML = `<div class="month-name">${mes}</div><div class="month-counter">${contadores[idx]}</div>`;
-        container.appendChild(box);
-    });
 }
 
 // ══════════════════════════════════════════════
-// CONFIGURAÇÕES / TIPOS DE SERVIÇO
+// CONFIG
 // ══════════════════════════════════════════════
 function renderConfiguracoes() {
     const grid = document.getElementById('pcServicesGrid');
@@ -1554,13 +1011,19 @@ function renderConfiguracoes() {
 }
 
 // ══════════════════════════════════════════════
-// FILTROS E NAVEGAÇÃO
+// NAVEGAÇÃO
 // ══════════════════════════════════════════════
 function switchFilter(type, btn) {
     currentFilter = type;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#telaDashboard .filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderSistemaGeral();
+}
+function switchOleoFilter(type, btn) {
+    currentOleoFilter = type;
+    document.querySelectorAll('#telaOleo .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderOleo();
 }
 
 function navegarApp(telaId) {
@@ -1570,9 +1033,10 @@ function navegarApp(telaId) {
     document.getElementById(`tela${telaId}`)?.classList.add('active');
     document.getElementById(`pcNav${telaId}`)?.classList.add('active');
     document.getElementById(`btnNav${telaId}`)?.classList.add('active');
-    
-    if (telaId === 'Usuarios') {
-        carregarUsuarios();
+    if (telaId === 'Usuarios') carregarUsuarios();
+    if (telaId === 'OleoForm' && !document.getElementById('oleoEditRowId').value) {
+        aplicarIntervaloPadrao();
+        atualizarPreviewOleo();
     }
 }
 
@@ -1581,17 +1045,17 @@ function navegarApp(telaId) {
 // ══════════════════════════════════════════════
 function formatDateBR(dateStr) {
     if (!dateStr) return '';
-    const [y, m, d] = dateStr.split('-');
-    return `${d}/${m}/${y}`;
+    const parts = dateStr.split('-');
+    if (parts.length < 3) return dateStr;
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
-
 function escapeHtml(str) {
     if (!str) return '';
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ══════════════════════════════════════════════
-// CRUD — SALVAR / EDITAR
+// AC — CRUD
 // ══════════════════════════════════════════════
 async function salvarRegistro(e) {
     e.preventDefault();
@@ -1599,14 +1063,13 @@ async function salvarRegistro(e) {
     const payload = {
         action: rowId ? "edit" : "create",
         rowId: rowId || undefined,
-        clientName:      document.getElementById('clientName').value.trim(),
-        model:           document.getElementById('model').value.trim(),
+        clientName: document.getElementById('clientName').value.trim(),
+        model: document.getElementById('model').value.trim(),
         maintenanceType: document.getElementById('maintenanceType').value,
-        serviceType:     document.getElementById('serviceType').value,
-        status:          document.getElementById('maintStatus').value,
-        lastDate:        document.getElementById('lastDate').value
+        serviceType: document.getElementById('serviceType').value,
+        status: document.getElementById('maintStatus').value,
+        lastDate: document.getElementById('lastDate').value
     };
-
     const btn = document.getElementById('btnSalvar');
     btn.innerText = 'SALVANDO...'; btn.disabled = true;
     showLoader('Salvando registro...');
@@ -1618,20 +1081,11 @@ async function salvarRegistro(e) {
             cancelarEdicao();
             await loadDataFromSheets();
             navegarApp('Dashboard');
-        } else {
-            showToast('Erro ao salvar. Tente novamente.', 'error');
-        }
-    } catch(err) {
-        showToast('Erro de conexão ao salvar.', 'error');
-    } finally {
-        btn.innerText = '💾 Salvar'; btn.disabled = false;
-        hideLoader();
-    }
+        } else { showToast('Erro ao salvar.', 'error'); }
+    } catch(err) { showToast('Erro de conexão ao salvar.', 'error'); }
+    finally { btn.innerText = '💾 Salvar'; btn.disabled = false; hideLoader(); }
 }
 
-// ══════════════════════════════════════════════
-// CRUD — CONCLUIR
-// ══════════════════════════════════════════════
 async function darBaixaRegistro(rowId) {
     if (!confirm('Confirmar a conclusão deste serviço?')) return;
     showLoader('Registrando conclusão...');
@@ -1639,34 +1093,24 @@ async function darBaixaRegistro(rowId) {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "conclude", rowId }) });
         const data = await r.json();
         if (data.result === "success") {
-            showToast(`Serviço concluído! Novo agendamento criado para ${MESES_PROXIMO_AGENDAMENTO} meses.`, 'success');
+            showToast(`Serviço concluído! Novo agendamento criado.`, 'success');
             await loadDataFromSheets();
-        } else {
-            showToast('Erro ao concluir serviço.', 'error');
-        }
-    } catch(e) {
-        showToast('Erro de conexão.', 'error');
-    } finally {
-        hideLoader();
-    }
+        } else { showToast('Erro ao concluir.', 'error'); }
+    } catch(e) { showToast('Erro de conexão.', 'error'); }
+    finally { hideLoader(); }
 }
 
-// ══════════════════════════════════════════════
-// CRUD — EDIÇÃO
-// ══════════════════════════════════════════════
 function prepararEdicao(rowId) {
     const item = records.find(r => r.rowId === rowId);
     if (!item) return;
-
-    document.getElementById('editRowId').value       = item.rowId;
-    document.getElementById('clientName').value      = item.clientName;
-    document.getElementById('model').value           = item.model;
+    document.getElementById('editRowId').value = item.rowId;
+    document.getElementById('clientName').value = item.clientName;
+    document.getElementById('model').value = item.model;
     document.getElementById('maintenanceType').value = item.maintenanceType;
     updateServiceOptions();
-    document.getElementById('serviceType').value     = item.serviceType;
-    document.getElementById('maintStatus').value     = item.status;
-    document.getElementById('lastDate').value        = item.lastDate || '';
-
+    document.getElementById('serviceType').value = item.serviceType;
+    document.getElementById('maintStatus').value = item.status;
+    document.getElementById('lastDate').value = item.lastDate || '';
     document.getElementById('formTitle').innerText = '📝 Editar Manutenção';
     document.getElementById('btnCancelarEdicao').style.display = 'block';
     navegarApp('Novo');
@@ -1680,50 +1124,23 @@ function cancelarEdicao() {
     updateServiceOptions();
 }
 
-// ══════════════════════════════════════════════
-// CRUD — EXCLUIR REGISTRO (com origem)
-// ══════════════════════════════════════════════
 async function excluirRegistro(rowId) {
     const item = records.find(r => r.rowId === rowId);
-    if (!item) {
-        showToast('Registro não encontrado.', 'error');
-        return;
-    }
-    const confirmMsg = item.origem === 'historico' 
-        ? 'Deseja excluir esta manutenção do histórico (Concluídas)?' 
-        : 'Deseja excluir este agendamento?';
-    if (!confirm(confirmMsg)) return;
-
+    if (!item) return;
+    if (!confirm('Deseja excluir este registro?')) return;
     showLoader('Excluindo...');
     try {
-        const r = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: "delete",
-                rowId: rowId,
-                origem: item.origem
-            })
-        });
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "delete", rowId: rowId, origem: item.origem }) });
         const data = await r.json();
-        if (data.result === "success") {
-            showToast('Registro excluído com sucesso.', 'warning');
-            await loadDataFromSheets();
-        } else {
-            showToast('Erro ao excluir.', 'error');
-        }
-    } catch(e) {
-        showToast('Erro de conexão.', 'error');
-    } finally {
-        hideLoader();
-    }
+        if (data.result === "success") { showToast('Registro excluído.', 'warning'); await loadDataFromSheets(); }
+        else { showToast('Erro ao excluir.', 'error'); }
+    } catch(e) { showToast('Erro de conexão.', 'error'); }
+    finally { hideLoader(); }
 }
 
-// ══════════════════════════════════════════════
-// CRUD — SALVAR CONFIG
-// ══════════════════════════════════════════════
 async function salvarNovaConfiguracao(e) {
     e.preventDefault();
-    const cat  = document.getElementById('novoServicoCategoria').value;
+    const cat = document.getElementById('novoServicoCategoria').value;
     const nome = document.getElementById('novoServicoNome').value.trim();
     showLoader('Salvando configuração...');
     try {
@@ -1733,44 +1150,434 @@ async function salvarNovaConfiguracao(e) {
             showToast(`Serviço "${nome}" adicionado!`, 'success');
             document.getElementById('cadastroServicoForm').reset();
             await loadDataFromSheets();
-        } else {
-            showToast('Erro ao salvar configuração.', 'error');
-        }
-    } catch(err) {
-        showToast('Erro de conexão.', 'error');
-    } finally {
-        hideLoader();
-    }
+        } else { showToast('Erro ao salvar.', 'error'); }
+    } catch(err) { showToast('Erro de conexão.', 'error'); }
+    finally { hideLoader(); }
 }
 
-// ══════════════════════════════════════════════
-// CRUD — EXCLUIR SERVIÇO (CONFIG)
-// ══════════════════════════════════════════════
 async function excluirServico(categoria, nome) {
     if (!confirm(`Remover "${nome}" da lista de ${categoria}?`)) return;
-    showLoader('Removendo serviço...');
+    showLoader('Removendo...');
     try {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "removeConfig", category: categoria, name: nome }) });
         const data = await r.json();
-        if (data.result === "success") {
-            showToast('Serviço removido.', 'warning');
-            await loadDataFromSheets();
-        } else {
-            showToast('Erro ao remover serviço.', 'error');
-        }
-    } catch(err) {
-        showToast('Erro de conexão.', 'error');
-    } finally {
-        hideLoader();
-    }
+        if (data.result === "success") { showToast('Serviço removido.', 'warning'); await loadDataFromSheets(); }
+        else { showToast('Erro ao remover.', 'error'); }
+    } catch(err) { showToast('Erro de conexão.', 'error'); }
+    finally { hideLoader(); }
 }
 
 // ══════════════════════════════════════════════
-// IMPRESSÃO / PDF
+// ÓLEO — LÓGICA DE ATRASO
 // ══════════════════════════════════════════════
-function imprimirPDF() {
-    document.getElementById('pUser').innerText = localStorage.getItem('usuarioClima') || 'Técnico';
-    document.getElementById('pDate').innerText = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+function isAtrasadoOleo(item) {
+    if (item.status === 'Realizada') return false;
+    // Por data
+    if (item.proximaTrocaData) {
+        const hoje = new Date(); hoje.setHours(0,0,0,0);
+        const parts = item.proximaTrocaData.split('-').map(Number);
+        if (parts.length === 3) {
+            const prox = new Date(parts[0], parts[1]-1, parts[2]);
+            prox.setHours(0,0,0,0);
+            if (hoje > prox) return true;
+        }
+    }
+    // Por KM
+    if (item.kmAtual && item.proximaTrocaKm && Number(item.kmAtual) >= Number(item.proximaTrocaKm)) return true;
+    return false;
+}
+
+// ══════════════════════════════════════════════
+// ÓLEO — CÁLCULO AUTOMÁTICO
+// ══════════════════════════════════════════════
+function calcularProximaTroca(dataUltima, kmUltima, intervalosMeses, intervalosKm) {
+    let proximaData = '';
+    if (dataUltima) {
+        const parts = dataUltima.split('-').map(Number);
+        if (parts.length === 3) {
+            const d = new Date(parts[0], parts[1]-1, parts[2]);
+            d.setMonth(d.getMonth() + Number(intervalosMeses || 12));
+            proximaData = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+    }
+    const proximaKm = (Number(kmUltima) || 0) + (Number(intervalosKm) || 0);
+    return { proximaData, proximaKm };
+}
+
+function aplicarIntervaloPadrao() {
+    const tipo = document.getElementById('oleoTipoVeiculo').value;
+    const kmInput = document.getElementById('oleoIntervaloKm');
+    const mesesInput = document.getElementById('oleoIntervaloMeses');
+    if (tipo === 'Moto') {
+        kmInput.value = 1000;   // 🏍️ Moto: 1.000 km
+        mesesInput.value = 6;   //    e 6 meses
+    } else {
+        kmInput.value = 5000;   // 🚗 Carro: 5.000 km
+        mesesInput.value = 6;   //    e 6 meses
+    }
+    atualizarPreviewOleo();
+
+}
+
+function atualizarPreviewOleo() {
+    const dataUltima = document.getElementById('oleoUltimaTroca').value;
+    const kmUltima = document.getElementById('oleoKmUltimaTroca').value;
+    const meses = document.getElementById('oleoIntervaloMeses').value;
+    const km = document.getElementById('oleoIntervaloKm').value;
+    const box = document.getElementById('oleoPreviewText');
+    if (!dataUltima || !kmUltima) { box.innerText = 'Preencha a última troca e os intervalos para ver o próximo agendamento.'; return; }
+    const { proximaData, proximaKm } = calcularProximaTroca(dataUltima, kmUltima, meses, km);
+    box.innerHTML = `📅 <strong>Próxima data:</strong> ${formatDateBR(proximaData)} · 🛣️ <strong>Próximo KM:</strong> ${Number(proximaKm).toLocaleString('pt-BR')} km`;
+}
+['oleoUltimaTroca','oleoKmUltimaTroca','oleoIntervaloMeses','oleoIntervaloKm'].forEach(id => {
+    document.addEventListener('DOMContentLoaded', () => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', atualizarPreviewOleo);
+    });
+});
+
+// ══════════════════════════════════════════════
+// ÓLEO — RENDER
+// ══════════════════════════════════════════════
+function renderOleo() {
+    const mCards = document.getElementById('oleoMobileCards');
+    const pcTable = document.getElementById('oleoDesktopTableBody');
+    const emptyState = document.getElementById('oleoEmptyState');
+    const searchTerm = (document.getElementById('oleoSearchInput')?.value || '').toLowerCase().trim();
+    const tipoFilter = document.getElementById('filterTipoVeiculo')?.value || '';
+    mCards.innerHTML = ''; pcTable.innerHTML = '';
+
+    let visibleCount = 0;
+    let cRealizadas = 0, cAtrasadas = 0, cAgendadas = 0, cTotal = 0;
+
+    oleoRecords.forEach(item => {
+        const atrasada = isAtrasadoOleo(item);
+        if (item.status === 'Realizada') cRealizadas++;
+        else if (atrasada) cAtrasadas++;
+        else cAgendadas++;
+        if (item.status !== 'Realizada') cTotal++;
+
+        let passaFiltro = false;
+        switch(currentOleoFilter) {
+            case 'agendadas': passaFiltro = item.status !== 'Realizada' && !atrasada; break;
+            case 'concluidas': passaFiltro = item.status === 'Realizada'; break;
+            case 'atrasadas': passaFiltro = item.status !== 'Realizada' && atrasada; break;
+            case 'todos': passaFiltro = true; break;
+        }
+        if (!passaFiltro) return;
+        if (tipoFilter && item.tipoVeiculo !== tipoFilter) return;
+        if (searchTerm) {
+            const haystack = `${item.clientName} ${item.veiculo} ${item.placa} ${item.tipoOleo}`.toLowerCase();
+            if (!haystack.includes(searchTerm)) return;
+        }
+        visibleCount++;
+
+        let bClass = 'badge-agendada', bText = 'Agendada';
+        if (item.status === 'Realizada') { bClass = 'badge-realizada'; bText = 'Realizada'; }
+        else if (atrasada) { bClass = 'badge-atrasada'; bText = 'Atrasada'; }
+
+        const tipoBadge = item.tipoVeiculo === 'Moto'
+            ? '<span class="badge badge-moto">🏍️ Moto</span>'
+            : '<span class="badge badge-carro">🚗 Carro</span>';
+
+        const proximaDataBR = item.proximaTrocaData ? formatDateBR(item.proximaTrocaData) : '—';
+        const proximaKmStr = item.proximaTrocaKm ? Number(item.proximaTrocaKm).toLocaleString('pt-BR') + ' km' : '—';
+
+        const botaoConcluir = (item.status !== 'Realizada')
+            ? `<button class="btn btn-success btn-sm btn-icon" title="Concluir troca" onclick="concluirOleo(${item.rowId})">✓</button>` : '';
+        const botaoAtualizarKm = (item.status !== 'Realizada')
+            ? `<button class="btn btn-ghost btn-sm btn-icon" title="Atualizar KM atual" onclick="atualizarKmOleo(${item.rowId})">🛣️</button>` : '';
+
+        const card = document.createElement('div');
+        card.className = 'device-card fade-in';
+        card.innerHTML = `
+            <div class="device-card-header">
+                <div>
+                    <div class="device-title">${escapeHtml(item.clientName)}</div>
+                    <div class="device-sub">${escapeHtml(item.veiculo)} · ${escapeHtml(item.placa)}</div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
+                    ${tipoBadge}
+                    <span class="badge ${bClass}">${bText}</span>
+                </div>
+            </div>
+            <div class="device-details">
+                <strong>Óleo:</strong> ${escapeHtml(item.tipoOleo || '—')}<br>
+                <strong>KM atual:</strong> ${item.kmAtual ? Number(item.kmAtual).toLocaleString('pt-BR') : '—'} · <strong>Próx. KM:</strong> ${proximaKmStr}<br>
+                <strong>Próxima data:</strong> ${proximaDataBR}
+            </div>
+            <div class="device-actions">
+                ${botaoConcluir}${botaoAtualizarKm}
+                <button class="btn btn-ghost btn-sm btn-icon" title="Editar" onclick="prepararEdicaoOleo(${item.rowId})">📝</button>
+                <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="excluirOleoRegistro(${item.rowId})">🗑️</button>
+            </div>`;
+        mCards.appendChild(card);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="td-client"><strong>${escapeHtml(item.clientName)}</strong><span>${escapeHtml(item.veiculo)} · ${tipoBadge}</span></td>
+            <td><strong>${escapeHtml(item.placa)}</strong></td>
+            <td>${escapeHtml(item.tipoOleo || '—')}<br><small style="color:var(--muted);">${Number(item.intervaloKm).toLocaleString('pt-BR')} km / ${item.intervaloMeses} meses</small></td>
+            <td>${proximaDataBR}<br><small style="color:var(--muted);">${proximaKmStr}</small></td>
+            <td><span class="badge ${bClass}">${bText}</span></td>
+            <td><div style="display:flex; gap:6px; flex-wrap:wrap;">
+                ${botaoConcluir}${botaoAtualizarKm}
+                <button class="btn btn-ghost btn-sm btn-icon" title="Editar" onclick="prepararEdicaoOleo(${item.rowId})">📝</button>
+                <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="excluirOleoRegistro(${item.rowId})">🗑️</button>
+            </div></td>`;
+        pcTable.appendChild(tr);
+    });
+
+    document.getElementById('oleoCardRealizadas').innerText = cRealizadas;
+    document.getElementById('oleoCardAtrasadas').innerText = cAtrasadas;
+    document.getElementById('oleoCardAgendadas').innerText = cAgendadas;
+    document.getElementById('oleoCardTotal').innerText = cTotal;
+    emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+}
+
+// ══════════════════════════════════════════════
+// ÓLEO — SALVAR / EDITAR / EXCLUIR / CONCLUIR
+// ══════════════════════════════════════════════
+async function salvarOleoRegistro(e) {
+    e.preventDefault();
+    const rowId = document.getElementById('oleoEditRowId').value;
+    const dataUltima = document.getElementById('oleoUltimaTroca').value;
+    const kmUltima = Number(document.getElementById('oleoKmUltimaTroca').value);
+    const kmAtual = Number(document.getElementById('oleoKmAtual').value);
+    const meses = Number(document.getElementById('oleoIntervaloMeses').value);
+    const kmInt = Number(document.getElementById('oleoIntervaloKm').value);
+
+    const { proximaData, proximaKm } = calcularProximaTroca(dataUltima, kmUltima, meses, kmInt);
+
+    const payload = {
+        action: rowId ? "editOleo" : "createOleo",
+        rowId: rowId || Date.now(),
+        clientName: document.getElementById('oleoClient').value.trim(),
+        veiculo: document.getElementById('oleoVeiculo').value.trim(),
+        placa: document.getElementById('oleoPlaca').value.trim().toUpperCase(),
+        tipoVeiculo: document.getElementById('oleoTipoVeiculo').value,
+        tipoOleo: document.getElementById('oleoTipoOleo').value.trim(),
+        kmAtual: kmAtual,
+        ultimaTroca: dataUltima,
+        kmUltimaTroca: kmUltima,
+        intervaloKm: kmInt,
+        intervaloMeses: meses,
+        proximaTrocaData: proximaData,
+        proximaTrocaKm: proximaKm,
+        status: 'Agendada',
+        obs: document.getElementById('oleoObs').value.trim()
+    };
+
+    const btn = document.getElementById('btnSalvarOleo');
+    btn.innerText = 'SALVANDO...'; btn.disabled = true;
+    showLoader('Salvando veículo...');
+    try {
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const data = await r.json();
+        if (data.result === "success") {
+            showToast(rowId ? 'Veículo atualizado!' : 'Veículo cadastrado!', 'success');
+            cancelarEdicaoOleo();
+            await loadDataFromSheets();
+            navegarApp('Oleo');
+        } else {
+            showToast('Erro ao salvar.', 'error');
+        }
+    } catch(err) { showToast('Erro de conexão.', 'error'); }
+    finally { btn.innerText = '💾 Salvar'; btn.disabled = false; hideLoader(); }
+}
+
+async function concluirOleo(rowId) {
+    const item = oleoRecords.find(r => r.rowId === rowId);
+    if (!item) return;
+    const kmInput = prompt(`Informe o KM atual do veículo (última leitura: ${Number(item.kmAtual || 0).toLocaleString('pt-BR')} km):`, item.kmAtual || '');
+    if (kmInput === null) return;
+    const km = Number(kmInput);
+    if (!km || km < Number(item.kmUltimaTroca || 0)) {
+        showToast('KM inválido. Deve ser maior ou igual à última troca.', 'warning');
+        return;
+    }
+    if (!confirm(`Confirmar conclusão da troca de óleo?\n\n• Veículo: ${item.veiculo}\n• KM: ${km.toLocaleString('pt-BR')} km\n\nUm novo agendamento será criado automaticamente.`)) return;
+
+    showLoader('Registrando troca...');
+    try {
+        const hoje = new Date().toISOString().split('T')[0];
+        const r = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'concludeOleo',
+                rowId: rowId,
+                kmAtual: km,
+                dataTroca: hoje
+            })
+        });
+        const data = await r.json();
+        if (data.result === 'success') {
+            showToast('Troca concluída! Novo agendamento criado automaticamente.', 'success');
+            await loadDataFromSheets();
+        } else {
+            showToast('Erro ao concluir troca.', 'error');
+        }
+    } catch(e) { showToast('Erro de conexão.', 'error'); }
+    finally { hideLoader(); }
+}
+
+async function atualizarKmOleo(rowId) {
+    const item = oleoRecords.find(r => r.rowId === rowId);
+    if (!item) return;
+    const kmInput = prompt(`Atualizar KM atual de "${item.veiculo}":`, item.kmAtual || '');
+    if (kmInput === null) return;
+    const km = Number(kmInput);
+    if (!km || km < 0) { showToast('KM inválido.', 'warning'); return; }
+
+    showLoader('Atualizando KM...');
+    try {
+        const r = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'updateKmOleo', rowId: rowId, kmAtual: km })
+        });
+        const data = await r.json();
+        if (data.result === 'success') {
+            const atrasou = item.proximaTrocaKm && km >= Number(item.proximaTrocaKm);
+            showToast(atrasou ? `⚠️ KM atualizado. Troca VENCIDA por KM!` : 'KM atualizado com sucesso.', atrasou ? 'warning' : 'success');
+            await loadDataFromSheets();
+        } else { showToast('Erro ao atualizar.', 'error'); }
+    } catch(e) { showToast('Erro de conexão.', 'error'); }
+    finally { hideLoader(); }
+}
+
+function prepararEdicaoOleo(rowId) {
+    const item = oleoRecords.find(r => r.rowId === rowId);
+    if (!item) return;
+    document.getElementById('oleoEditRowId').value = item.rowId;
+    document.getElementById('oleoClient').value = item.clientName || '';
+    document.getElementById('oleoVeiculo').value = item.veiculo || '';
+    document.getElementById('oleoPlaca').value = item.placa || '';
+    document.getElementById('oleoTipoVeiculo').value = item.tipoVeiculo || 'Carro';
+    document.getElementById('oleoTipoOleo').value = item.tipoOleo || '';
+    document.getElementById('oleoKmAtual').value = item.kmAtual || '';
+    document.getElementById('oleoUltimaTroca').value = item.ultimaTroca || '';
+    document.getElementById('oleoKmUltimaTroca').value = item.kmUltimaTroca || '';
+    const tipoDoItem = item.tipoVeiculo || 'Carro';
+    document.getElementById('oleoIntervaloKm').value    = item.intervaloKm    || (tipoDoItem === 'Moto' ? 1000 : 5000);
+    document.getElementById('oleoIntervaloMeses').value = item.intervaloMeses || 6;
+    document.getElementById('oleoObs').value = item.obs || '';
+    document.getElementById('oleoFormTitle').innerText = '📝 Editar Veículo';
+    document.getElementById('btnCancelarOleo').style.display = 'block';
+    atualizarPreviewOleo();
+    navegarApp('OleoForm');
+}
+
+function cancelarEdicaoOleo() {
+    document.getElementById('oleoForm').reset();
+    document.getElementById('oleoEditRowId').value = '';
+    document.getElementById('oleoFormTitle').innerText = '🚗 Cadastrar Veículo';
+    document.getElementById('btnCancelarOleo').style.display = 'none';
+    aplicarIntervaloPadrao();
+}
+
+async function excluirOleoRegistro(rowId) {
+    if (!confirm('Deseja excluir este veículo do controle de óleo?')) return;
+    showLoader('Excluindo...');
+    try {
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteOleo', rowId: rowId }) });
+        const data = await r.json();
+        if (data.result === 'success') { showToast('Veículo excluído.', 'warning'); await loadDataFromSheets(); }
+        else { showToast('Erro ao excluir.', 'error'); }
+    } catch(e) { showToast('Erro de conexão.', 'error'); }
+    finally { hideLoader(); }
+}
+
+// ══════════════════════════════════════════════
+// USUÁRIOS
+// ══════════════════════════════════════════════
+async function carregarUsuarios() {
+    if (!isAdmin) {
+        const container = document.getElementById('userList');
+        if (container) container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--muted);">🔒 Apenas administradores podem ver esta lista.</div>`;
+        return;
+    }
+    try {
+        const currentUser = localStorage.getItem('usuarioClima') || '';
+        const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "listUsers", currentUser: currentUser }) });
+        const data = await response.json();
+        if (data.result === "success") { usuarios = data.users || []; renderizarUsuarios(); }
+        else { showToast(data.error || 'Erro ao carregar usuários.', 'error'); }
+    } catch (error) { showToast('Erro de conexão.', 'error'); }
+}
+
+function renderizarUsuarios() {
+    const container = document.getElementById('userList');
+    if (!container) return;
+    if (!isAdmin) { container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--muted);">🔒 Apenas administradores.</div>`; return; }
+    if (usuarios.length === 0) { container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--muted);">Nenhum usuário cadastrado.</div>`; return; }
+    const usuarioAtual = localStorage.getItem('usuarioClima') || '';
+    let html = '';
+    usuarios.forEach(user => {
+        const isCurrentUser = user.username === usuarioAtual;
+        const isAdminUser = user.isAdmin === true;
+        html += `
+            <div class="user-item">
+                <div class="user-info">
+                    <div class="user-name">${escapeHtml(user.username)} ${isCurrentUser ? '👑' : ''}</div>
+                    <div class="user-role">${isAdminUser ? '⭐ Administrador' : '👨‍🔧 Técnico'} ${isCurrentUser ? '· Você' : ''}</div>
+                </div>
+                <div class="user-actions">
+                    ${!isCurrentUser ? `<button onclick="adminExcluirUsuario('${escapeHtml(user.username)}')" class="btn btn-danger btn-sm btn-icon" title="Excluir">🗑️</button>` : ''}
+                </div>
+            </div>`;
+    });
+    container.innerHTML = html;
+}
+
+async function adminCadastrarUsuario() {
+    if (!isAdmin) { showToast('Apenas administradores.', 'error'); return; }
+    const username = document.getElementById('adminNewUser').value.trim();
+    const password = document.getElementById('adminNewPass').value.trim();
+    const role = document.getElementById('adminNewRole').value;
+    if (!username || !password) { showToast('Preencha usuário e senha.', 'warning'); return; }
+    if (password.length < 4) { showToast('Senha mínima: 4 caracteres.', 'warning'); return; }
+    showLoader('Cadastrando...');
+    try {
+        const currentUser = localStorage.getItem('usuarioClima') || '';
+        const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "register", username, password, role, currentUser }) });
+        const data = await response.json();
+        if (data.result === "success") {
+            showToast(`Usuário cadastrado!`, 'success');
+            document.getElementById('adminNewUser').value = '';
+            document.getElementById('adminNewPass').value = '';
+            await carregarUsuarios();
+        } else { showToast(data.error || 'Erro.', 'error'); }
+    } catch (error) { showToast('Erro de conexão.', 'error'); }
+    finally { hideLoader(); }
+}
+
+async function adminExcluirUsuario(username) {
+    if (!isAdmin) { showToast('Apenas administradores.', 'error'); return; }
+    if (!confirm(`Excluir usuário "${username}"?`)) return;
+    showLoader('Excluindo...');
+    try {
+        const currentUser = localStorage.getItem('usuarioClima') || '';
+        const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "deleteUser", username, currentUser }) });
+        const data = await response.json();
+        if (data.result === "success") { showToast('Usuário excluído.', 'warning'); await carregarUsuarios(); }
+        else { showToast(data.error || 'Erro.', 'error'); }
+    } catch (error) { showToast('Erro de conexão.', 'error'); }
+    finally { hideLoader(); }
+}
+
+// ══════════════════════════════════════════════
+// IMPRESSÃO
+// ══════════════════════════════════════════════
+function imprimirPDF(tipo) {
+    const user = localStorage.getItem('usuarioClima') || 'Técnico';
+    const dateStr = new Date().toLocaleDateString('pt-BR');
+    if (tipo === 'oleo') {
+        document.getElementById('pUserOleo').innerText = user;
+        document.getElementById('pDateOleo').innerText = dateStr;
+    } else {
+        document.getElementById('pUser').innerText = user;
+        document.getElementById('pDate').innerText = dateStr;
+    }
     window.print();
 }
 </script>
